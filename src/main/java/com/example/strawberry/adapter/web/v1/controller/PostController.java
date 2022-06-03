@@ -31,10 +31,9 @@ public class PostController {
     @PostMapping("/{idUser}/create-post")
     public ResponseEntity<?> createPost(
             @PathVariable("idUser") Long id,
-            @ModelAttribute @Valid PostDTO postDTO,
+            @ModelAttribute PostDTO postDTO,
             @RequestParam(name = "fileImages", required = false) MultipartFile[] fileImages,
             @RequestParam(name = "fileVideos", required = false) MultipartFile[] fileVideos) {
-        System.out.println("aaa");
         return VsResponseUtil.ok(postService.createPost(id, postDTO, fileImages, fileVideos));
     }
 
@@ -43,7 +42,7 @@ public class PostController {
     public ResponseEntity<?> createPost(
             @PathVariable("idGroup") Long idGroup,
             @PathVariable("idUser") Long idUser,
-            @ModelAttribute @Valid PostDTO postDTO,
+            @ModelAttribute PostDTO postDTO,
             @RequestParam(name = "fileImages", required = false) MultipartFile[] fileImages,
             @RequestParam(name = "fileVideos", required = false) MultipartFile[] fileVideos) {
         System.out.println("hehe");
@@ -55,7 +54,7 @@ public class PostController {
     @PatchMapping("/{idPost}/update-post")
     public ResponseEntity<?> updatePost(
             @PathVariable("idPost") Long id,
-            @ModelAttribute @Valid PostDTO postDTO,
+            @ModelAttribute PostDTO postDTO,
             @RequestParam(name = "fileImages", required = false) MultipartFile[] fileImages,
             @RequestParam(name = "fileVideos", required = false) MultipartFile[] fileVideos) {
         return VsResponseUtil.ok(postService.updatePost(id, postDTO, fileImages, fileVideos));
