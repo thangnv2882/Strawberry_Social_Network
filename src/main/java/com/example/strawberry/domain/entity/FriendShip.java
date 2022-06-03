@@ -28,7 +28,7 @@ public class FriendShip {
     @JoinColumn(name = "user_sender")
     private User userSender;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_receiver")
     private User userReceiver;
 

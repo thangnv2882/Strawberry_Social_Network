@@ -10,9 +10,25 @@ import java.util.Set;
 
 @Repository
 public interface IFriendShipRepository extends JpaRepository<FriendShip, Long> {
-    @Query("select f from FriendShip f where f.userReceiver.id = ?1")
-    Set<FriendShip> findAllByUserReceiverId(Long idUserReceiver);
 
-    @Query("select f from FriendShip f where f.userReceiver = ?1")
-    Set<FriendShip> findAllByUserReceiver(Long idUserReceiver);
+    @Query("select f from FriendShip f where f.userSender.id = ?1 or f.userReceiver.id = ?2")
+    Set<FriendShip> findAllByUserSenderIdOrUserReceiverId(Long idUserSender, Long idUserReceiver);
+
+    @Query("select f from FriendShip f where f.userReceiver.id = ?1 and f.isAccept = ?2")
+    Set<FriendShip> findAllByUserReceiverIdAndIsAccept(Long idUserReceiver, Boolean boolen);
+
+    @Query("select f from FriendShip f where f.userSender.id = ?1 and f.isAccept = ?2")
+    Set<FriendShip> findAllByUserSenderIdAndIsAccept(Long idUserSender, Boolean boolen);
+
+    @Query("select f from FriendShip f where f.userSender.id = ?1 and f.userReceiver.id = ?2")
+    FriendShip findFriendShipByUserSenderIdAndUserReceiverId(Long idUserSender, Long idUserReceiver);
+
+    @Query("select f from FriendShip f where f.userReceiver.id = ?1 and f.userSender.id = ?2")
+    FriendShip findFriendShipByUserReceiverIdAndUserSenderId(Long idUserReceiver, Long idUserSender);
+
+
+    @Query("select f from FriendShip f " +
+            "where (f.userSender.id = 1 and f.userReceiver.id = 2) or (f.userReceiver.id = 3 and f.userSender.id = 4)")
+    FriendShip findFriendShipSendOrReceive(Long idUserSender1, Long idUserReceiver1, Long idUserReceiver2, Long idUserSender2);
+
 }

@@ -7,6 +7,7 @@ import com.example.strawberry.domain.entity.FriendShip;
 import com.example.strawberry.domain.entity.User;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,39 +27,102 @@ public class FriendShipImpl implements IFriendShipService {
 
 
     @Override
-    public FriendShip addFriend(Long idUserSender, Long idUserReceiver) {
+    public Set<User> getAllFriend(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        userService.checkUserExists(user);
+
+        Set<User> listUser = new HashSet<>();
+
+        Set<FriendShip> friendShip1 = friendShipRepository.findAllByUserSenderIdAndIsAccept(id, Boolean.TRUE);
+        System.out.println(friendShip1.size());
+        friendShip1.forEach(i -> {
+            listUser.add(i.getUserReceiver());
+        });
+
+        Set<FriendShip> friendShip2 = friendShipRepository.findAllByUserReceiverIdAndIsAccept(id, Boolean.TRUE);
+        friendShip2.forEach(i -> {
+            listUser.add(i.getUserSender());
+        });
+        return listUser;
+    }
+
+    @Override
+    public Set<User> getAllRequestAddFriend(Long idUserReceiver) {
+        Optional<User> user = userRepository.findById(idUserReceiver);
+        userService.checkUserExists(user);
+
+        Set<FriendShip> friendShip = friendShipRepository.findAllByUserReceiverIdAndIsAccept(idUserReceiver, Boolean.FALSE);
+        Set<User> users = new HashSet<>();
+        friendShip.forEach(i -> {
+            users.add(i.getUserSender());
+        });
+        return users;
+    }
+
+    @Override
+    public String addFriend(Long idUserSender, Long idUserReceiver) {
+        FriendShip friendShip = friendShipRepository.findFriendShipByUserSenderIdAndUserReceiverId(idUserSender, idUserReceiver);
+
+        if(friendShip != null) {
+            if(friendShip.getIsAccept() == Boolean.FALSE) {
+                return "You have already sent a friend request";
+            }
+            else {
+                return "Already friends";
+            }
+        }
+
+        friendShip = new FriendShip();
+
         Optional<User> userSender = userRepository.findById(idUserSender);
         userService.checkUserExists(userSender);
         Optional<User> userReceiver = userRepository.findById(idUserReceiver);
         userService.checkUserExists(userReceiver);
 
-        FriendShip friendShip = new FriendShip();
         friendShip.setUserSender(userSender.get());
         friendShip.setUserReceiver(userReceiver.get());
         friendShip.setIsAccept(Boolean.FALSE);
 
         friendShipRepository.save(friendShip);
-        return friendShip;
+        return "Sent a friend request";
     }
 
     @Override
-    public String acceptFriend(Long idUserReceiver, Long idUserSender) {
-        Set<FriendShip> listUserReceiver = friendShipRepository.findAllByUserReceiverId(idUserReceiver);
-        final int[] d = {0};
-
-        listUserReceiver.forEach(userReceiver -> {
-            if(userReceiver.getUserSender().getId() == idUserSender) {
-                userReceiver.setIsAccept(Boolean.TRUE);
-                d[0]++;
-            }
-        });
-        if(d[0] != 0) {
-            return "Added";
+    public String cancelAddFriend(Long idUserSender, Long idUserReceiver) {
+        FriendShip friendShip = friendShipRepository.findFriendShipByUserSenderIdAndUserReceiverId(idUserSender, idUserReceiver);
+        if(friendShip != null) {
+            friendShipRepository.delete(friendShip);
+            return "Canceled friend request.";
         }
-        return "Add fail";
+        return "You don't have a friend request with this person yet.";
     }
 
+    @Override
+    public String acceptFriend(Long idUserSender, Long idUserReceiver) {
+        FriendShip friendShip = friendShipRepository.findFriendShipByUserSenderIdAndUserReceiverId(idUserSender, idUserReceiver);
+        if(friendShip != null) {
+            if(friendShip.getIsAccept() == Boolean.FALSE) {
+                friendShip.setIsAccept(Boolean.TRUE);
+                friendShipRepository.save(friendShip);
+                return "Accept friend request.";
+            }
+            return "Already friends";
+        }
+        return "Don't accept friend requests.";
+    }
 
+    @Override
+    public String unFriend(Long idUserSender, Long idUserReceiver) {
+        FriendShip friendShip = friendShipRepository
+                .findFriendShipSendOrReceive(idUserSender, idUserReceiver, idUserReceiver, idUserSender);
+        if(friendShip != null) {
+            if(friendShip.getIsAccept() == Boolean.TRUE) {
+                friendShipRepository.delete(friendShip);
+                return "Unfriended successfully.";
+            }
+        }
+        return "Unfriend failed.";
+    }
 
 
 }
