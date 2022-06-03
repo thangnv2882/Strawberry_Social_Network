@@ -34,7 +34,6 @@ public class FriendShipImpl implements IFriendShipService {
         Set<User> listUser = new HashSet<>();
 
         Set<FriendShip> friendShip1 = friendShipRepository.findAllByUserSenderIdAndIsAccept(id, Boolean.TRUE);
-        System.out.println(friendShip1.size());
         friendShip1.forEach(i -> {
             listUser.add(i.getUserReceiver());
         });
@@ -51,7 +50,10 @@ public class FriendShipImpl implements IFriendShipService {
         Optional<User> user = userRepository.findById(idUserReceiver);
         userService.checkUserExists(user);
 
+        // Lấy ra các bản ghi có id user được nhập từ bàn phím
         Set<FriendShip> friendShip = friendShipRepository.findAllByUserReceiverIdAndIsAccept(idUserReceiver, Boolean.FALSE);
+
+        // Lưu vào các user đã gửi lời mời
         Set<User> users = new HashSet<>();
         friendShip.forEach(i -> {
             users.add(i.getUserSender());
@@ -63,6 +65,7 @@ public class FriendShipImpl implements IFriendShipService {
     public String addFriend(Long idUserSender, Long idUserReceiver) {
         FriendShip friendShip = friendShipRepository.findFriendShipByUserSenderIdAndUserReceiverId(idUserSender, idUserReceiver);
 
+        // Kiểm tra userSender đã gửi lời mời cho userReceiver chưa?
         if(friendShip != null) {
             if(friendShip.getIsAccept() == Boolean.FALSE) {
                 return "You have already sent a friend request";
@@ -72,6 +75,7 @@ public class FriendShipImpl implements IFriendShipService {
             }
         }
 
+        // userSender chưa gửi lời mời cho userReceiver => Gửi
         friendShip = new FriendShip();
 
         Optional<User> userSender = userRepository.findById(idUserSender);
@@ -90,6 +94,7 @@ public class FriendShipImpl implements IFriendShipService {
     @Override
     public String cancelAddFriend(Long idUserSender, Long idUserReceiver) {
         FriendShip friendShip = friendShipRepository.findFriendShipByUserSenderIdAndUserReceiverId(idUserSender, idUserReceiver);
+
         if(friendShip != null) {
             friendShipRepository.delete(friendShip);
             return "Canceled friend request.";

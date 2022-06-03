@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/posts")
 public class PostController {
@@ -29,7 +31,7 @@ public class PostController {
     @PostMapping("/{idUser}/create-post")
     public ResponseEntity<?> createPost(
             @PathVariable("idUser") Long id,
-            @ModelAttribute PostDTO postDTO,
+            @ModelAttribute @Valid PostDTO postDTO,
             @RequestParam(name = "fileImages", required = false) MultipartFile[] fileImages,
             @RequestParam(name = "fileVideos", required = false) MultipartFile[] fileVideos) {
         System.out.println("aaa");
@@ -41,7 +43,7 @@ public class PostController {
     public ResponseEntity<?> createPost(
             @PathVariable("idGroup") Long idGroup,
             @PathVariable("idUser") Long idUser,
-            @ModelAttribute PostDTO postDTO,
+            @ModelAttribute @Valid PostDTO postDTO,
             @RequestParam(name = "fileImages", required = false) MultipartFile[] fileImages,
             @RequestParam(name = "fileVideos", required = false) MultipartFile[] fileVideos) {
         System.out.println("hehe");
@@ -53,7 +55,7 @@ public class PostController {
     @PatchMapping("/{idPost}/update-post")
     public ResponseEntity<?> updatePost(
             @PathVariable("idPost") Long id,
-            @ModelAttribute PostDTO postDTO,
+            @ModelAttribute @Valid PostDTO postDTO,
             @RequestParam(name = "fileImages", required = false) MultipartFile[] fileImages,
             @RequestParam(name = "fileVideos", required = false) MultipartFile[] fileVideos) {
         return VsResponseUtil.ok(postService.updatePost(id, postDTO, fileImages, fileVideos));

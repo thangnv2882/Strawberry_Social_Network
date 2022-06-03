@@ -3,7 +3,6 @@ package com.example.strawberry.adapter.web.v1.controller;
 import com.example.strawberry.adapter.web.base.VsResponseUtil;
 import com.example.strawberry.application.service.IFriendShipService;
 import com.example.strawberry.application.service.IUserService;
-//import com.example.strawberry.domain.dto.ResetPasswordDTO;
 import com.example.strawberry.domain.dto.ResetPasswordDTO;
 import com.example.strawberry.domain.dto.UserDTO;
 import io.swagger.annotations.ApiOperation;
@@ -69,13 +68,13 @@ public class UserController {
     @PostMapping("/{id}/change-password")
     public ResponseEntity<?> changePassword(
             @PathVariable("id") Long id,
-            @RequestBody ResetPasswordDTO resetPasswordDTO) {
+            @RequestBody @Valid ResetPasswordDTO resetPasswordDTO) {
         return VsResponseUtil.ok(userService.changePassword(id, resetPasswordDTO));
     }
 
     @ApiOperation(value = "Cập nhật thông tin tài khoản.")
     @PatchMapping("/{id}/update-user")
-    public ResponseEntity<?> editUserById(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> editUserById(@PathVariable Long id, @RequestBody @Valid UserDTO userDTO) {
         return VsResponseUtil.ok(userService.updateUserById(id, userDTO));
     }
 
@@ -114,7 +113,7 @@ public class UserController {
         return VsResponseUtil.ok(userService.getAllGroupByIdUser(id));
     }
 
-    @ApiOperation(value = "Xem tất cả bạn vè")
+    @ApiOperation(value = "Xem tất cả bạn bè")
     @GetMapping("/{id}/friends")
     public ResponseEntity<?> getAllFriend(
             @PathVariable("id") Long id) {
