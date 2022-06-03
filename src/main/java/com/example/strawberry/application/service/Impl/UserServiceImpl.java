@@ -234,7 +234,6 @@ public class UserServiceImpl implements IUserService {
 
     public Boolean isEmailOrPhoneNumberExists(UserRegister userRegister) {
         List<UserRegister> userRegisters = userRegisterRepository.findAll();
-        final int[] d = {0};
         userRegisters.forEach(user -> {
             if (user.getStatus() == Boolean.TRUE) {
                 if (user.getEmail().compareTo(userRegister.getEmail()) == 0) {
@@ -245,16 +244,13 @@ public class UserServiceImpl implements IUserService {
                 }
             }
         });
-        userRegisters.forEach(user -> {
+        for (UserRegister user : userRegisters) {
             if (user.getStatus() == Boolean.FALSE) {
                 if (user.getEmail().compareTo(userRegister.getEmail()) == 0
                         || user.getPhoneNumber().compareTo(userRegister.getPhoneNumber()) == 0) {
-                    d[0]++;
+                    return true;
                 }
             }
-        });
-        if (d[0] != 0) {
-            return true;
         }
         return false;
     }

@@ -36,10 +36,8 @@ public class User extends AbstractAuditingEntity {
     @Nationalized
     private String fullName;
 
-//    @NotBlank
     private String email;
 
-//    @NotBlank
     private String phoneNumber;
 
     @NotBlank

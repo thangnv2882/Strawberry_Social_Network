@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/groups")
 public class GroupController {
@@ -32,7 +34,7 @@ public class GroupController {
     @PostMapping("/{idUser}/create-group")
     public ResponseEntity<?> createGroup(
             @PathVariable("idUser") Long idUser,
-            @RequestBody GroupDTO groupDTO) {
+            @RequestBody @Valid GroupDTO groupDTO) {
         return VsResponseUtil.ok(groupService.createGroup(idUser, groupDTO));
     }
 
