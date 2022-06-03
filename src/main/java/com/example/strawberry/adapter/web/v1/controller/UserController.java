@@ -40,7 +40,7 @@ public class UserController {
     @ApiOperation(value = "Đăng ký tài khoản.")
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(
-            @Valid @RequestBody UserDTO userDTO
+            @RequestBody UserDTO userDTO
     ) {
         return VsResponseUtil.ok(userService.registerUser(userDTO));
     }
@@ -68,13 +68,13 @@ public class UserController {
     @PostMapping("/{id}/change-password")
     public ResponseEntity<?> changePassword(
             @PathVariable("id") Long id,
-            @RequestBody @Valid ResetPasswordDTO resetPasswordDTO) {
+            @RequestBody ResetPasswordDTO resetPasswordDTO) {
         return VsResponseUtil.ok(userService.changePassword(id, resetPasswordDTO));
     }
 
     @ApiOperation(value = "Cập nhật thông tin tài khoản.")
     @PatchMapping("/{id}/update-user")
-    public ResponseEntity<?> editUserById(@PathVariable Long id, @RequestBody @Valid UserDTO userDTO) {
+    public ResponseEntity<?> editUserById(@PathVariable Long id, @RequestBody UserDTO userDTO) {
         return VsResponseUtil.ok(userService.updateUserById(id, userDTO));
     }
 

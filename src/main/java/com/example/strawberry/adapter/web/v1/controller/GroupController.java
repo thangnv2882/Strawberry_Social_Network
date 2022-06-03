@@ -34,7 +34,7 @@ public class GroupController {
     @PostMapping("/{idUser}/create-group")
     public ResponseEntity<?> createGroup(
             @PathVariable("idUser") Long idUser,
-            @RequestBody @Valid GroupDTO groupDTO) {
+            @RequestBody GroupDTO groupDTO) {
         return VsResponseUtil.ok(groupService.createGroup(idUser, groupDTO));
     }
 

@@ -26,7 +26,7 @@ public class CommentControlller {
     @PostMapping("/{idPost}/write-comment")
     public ResponseEntity<?> createCommentForPost(
             @PathVariable("idPost") Long idPost,
-            @RequestBody @Valid CommentDTO commentDTO) {
+            @RequestBody CommentDTO commentDTO) {
         return VsResponseUtil.ok(commentService.createCommentForPost(idPost, commentDTO));
     }
 
@@ -34,7 +34,7 @@ public class CommentControlller {
     @PatchMapping("/{idComment}/update-comment")
     public ResponseEntity<?> updateCommentForPost(
             @PathVariable("idComment") Long idComment,
-            @RequestBody @Valid CommentDTO commentDTO) {
+            @RequestBody CommentDTO commentDTO) {
         return VsResponseUtil.ok(commentService.updateCommentForPost(idComment, commentDTO));
     }
 
@@ -48,7 +48,7 @@ public class CommentControlller {
     @PostMapping("/{idCommentParent}/write-comment-child")
     public ResponseEntity<?> createCommentForComment(
             @PathVariable("idCommentParent") Long idCommentParent,
-            @RequestBody @Valid CommentDTO commentDTO) {
+            @RequestBody CommentDTO commentDTO) {
         return VsResponseUtil.ok(commentService.createCommentForComment(idCommentParent, commentDTO));
     }
 

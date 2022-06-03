@@ -111,16 +111,13 @@ public class GroupServiceImpl implements IGroupService {
         Set<User> users = group.get().getUsers();
 
         if(group.get().getAccess() == 0) {
-            users.forEach(i -> {
+            for(User i : users) {
                 if(i.getId() == user.get().getId()) {
-                    d[0]++;
+                    return posts;
                 }
-            });
-            if(d[0] == 0) {
-                return new HashSet<>();
             }
         }
-        return posts;
+        return new HashSet<>();
     }
 
 
