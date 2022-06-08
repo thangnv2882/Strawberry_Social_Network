@@ -22,11 +22,11 @@ public class ErrorResponseMap {
         this.status = status;
     }
 
-    public Map<String, String> getError() {
+    public Map<String, String> getMap1() {
         return error;
     }
 
-    public void setError(Map<String, String> error) {
+    public void setMap1(Map<String, String> error) {
         this.error = error;
     }
 }

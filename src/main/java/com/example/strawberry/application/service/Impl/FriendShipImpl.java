@@ -50,10 +50,7 @@ public class FriendShipImpl implements IFriendShipService {
         Optional<User> user = userRepository.findById(idUserReceiver);
         userService.checkUserExists(user);
 
-        // Lấy ra các bản ghi có id user được nhập từ bàn phím
         Set<FriendShip> friendShip = friendShipRepository.findAllByUserReceiverIdAndIsAccept(idUserReceiver, Boolean.FALSE);
-
-        // Lưu vào các user đã gửi lời mời
         Set<User> users = new HashSet<>();
         friendShip.forEach(i -> {
             users.add(i.getUserSender());
@@ -65,17 +62,14 @@ public class FriendShipImpl implements IFriendShipService {
     public String addFriend(Long idUserSender, Long idUserReceiver) {
         FriendShip friendShip = friendShipRepository.findFriendShipByUserSenderIdAndUserReceiverId(idUserSender, idUserReceiver);
 
-        // Kiểm tra userSender đã gửi lời mời cho userReceiver chưa?
-        if(friendShip != null) {
-            if(friendShip.getIsAccept() == Boolean.FALSE) {
+        if (friendShip != null) {
+            if (friendShip.getIsAccept() == Boolean.FALSE) {
                 return "You have already sent a friend request";
-            }
-            else {
+            } else {
                 return "Already friends";
             }
         }
 
-        // userSender chưa gửi lời mời cho userReceiver => Gửi
         friendShip = new FriendShip();
 
         Optional<User> userSender = userRepository.findById(idUserSender);
@@ -94,8 +88,7 @@ public class FriendShipImpl implements IFriendShipService {
     @Override
     public String cancelAddFriend(Long idUserSender, Long idUserReceiver) {
         FriendShip friendShip = friendShipRepository.findFriendShipByUserSenderIdAndUserReceiverId(idUserSender, idUserReceiver);
-
-        if(friendShip != null) {
+        if (friendShip != null) {
             friendShipRepository.delete(friendShip);
             return "Canceled friend request.";
         }
@@ -105,8 +98,8 @@ public class FriendShipImpl implements IFriendShipService {
     @Override
     public String acceptFriend(Long idUserSender, Long idUserReceiver) {
         FriendShip friendShip = friendShipRepository.findFriendShipByUserSenderIdAndUserReceiverId(idUserSender, idUserReceiver);
-        if(friendShip != null) {
-            if(friendShip.getIsAccept() == Boolean.FALSE) {
+        if (friendShip != null) {
+            if (friendShip.getIsAccept() == Boolean.FALSE) {
                 friendShip.setIsAccept(Boolean.TRUE);
                 friendShipRepository.save(friendShip);
                 return "Accept friend request.";
@@ -119,12 +112,15 @@ public class FriendShipImpl implements IFriendShipService {
     @Override
     public String unFriend(Long idUserSender, Long idUserReceiver) {
         FriendShip friendShip = friendShipRepository
-                .findFriendShipSendOrReceive(idUserSender, idUserReceiver, idUserReceiver, idUserSender);
-        if(friendShip != null) {
-            if(friendShip.getIsAccept() == Boolean.TRUE) {
-                friendShipRepository.delete(friendShip);
-                return "Unfriended successfully.";
-            }
+                .findFriendShipByUserSenderIdAndUserReceiverIdAndIsAccept(idUserSender, idUserReceiver, Boolean.TRUE);
+        if (friendShip != null) {
+            friendShipRepository.delete(friendShip);
+            return "Unfriended successfully.";
+        }
+        friendShip = friendShipRepository.findFriendShipByUserSenderIdAndUserReceiverIdAndIsAccept(idUserReceiver, idUserSender, Boolean.TRUE);
+        if (friendShip != null) {
+            friendShipRepository.delete(friendShip);
+            return "Unfriended successfully.";
         }
         return "Unfriend failed.";
     }

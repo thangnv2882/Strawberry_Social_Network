@@ -13,9 +13,8 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class GroupDTO {
 
-    @NotBlank(message = "Group name cannot be left blank")
+    @NotBlank(message = "")
     private String name;
-
     private int access;
 
 }
