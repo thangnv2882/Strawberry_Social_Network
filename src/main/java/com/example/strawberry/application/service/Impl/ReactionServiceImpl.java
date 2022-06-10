@@ -15,8 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.example.strawberry.adapter.web.base.ReactionType.DISLIKE;
-import static com.example.strawberry.adapter.web.base.ReactionType.LIKE;
+import static com.example.strawberry.adapter.web.base.ReactionType.*;
 
 @Service
 public class ReactionServiceImpl implements IReactionService {
@@ -45,25 +44,45 @@ public class ReactionServiceImpl implements IReactionService {
         userService.checkUserExists(userReact);
 
         Reaction reaction = reactionRepository.findByPostIdAndUserId(reactionDTO.getIdPost(), reactionDTO.getIdUserReact());
-        if (reaction != null
-            && reaction.getReactionType().equals(reactionDTO.getReactionType())) {
+        if (reaction != null) {
+            if(reaction.getReactionType().equals(reactionDTO.getReactionType())) {
+                reactionRepository.delete(reaction);
+                return reaction;
+            }
             reactionRepository.delete(reaction);
-            return reaction;
+            Reaction reaction1 = SetReaction(reactionDTO, post, userReact);
+            return reaction1;
         }
 
+        reaction = SetReaction(reactionDTO, post, userReact);
+        return reaction;
+    }
+
+    private Reaction SetReaction(ReactionDTO reactionDTO, Optional<Post> post, Optional<User> userReact) {
+        Reaction reaction;
         reaction = new Reaction();
         reaction.setPost(post.get());
         reaction.setUser(userReact.get());
 
         if (LIKE.equals(reactionDTO.getReactionType())) {
             reaction.setReactionType(LIKE);
-        } else if (DISLIKE.equals(reactionDTO.getReactionType())) {
-            reaction.setReactionType(DISLIKE);
+        } else if (LOVE.equals(reactionDTO.getReactionType())) {
+            reaction.setReactionType(LOVE);
+        } else if (CARE.equals(reactionDTO.getReactionType())) {
+            reaction.setReactionType(CARE);
+        } else if (HAHA.equals(reactionDTO.getReactionType())) {
+            reaction.setReactionType(HAHA);
+        } else if (WOW.equals(reactionDTO.getReactionType())) {
+            reaction.setReactionType(WOW);
+        } else if (SAD.equals(reactionDTO.getReactionType())) {
+            reaction.setReactionType(SAD);
+        } else {
+            reaction.setReactionType(ANGRY);
         }
-
         reactionRepository.save(reaction);
         return reaction;
     }
+
 
     @Override
     public Long getCountReactionOfPost(Long idPost) {
