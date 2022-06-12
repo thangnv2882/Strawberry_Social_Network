@@ -5,7 +5,6 @@ import com.example.strawberry.application.dai.IPostRepository;
 import com.example.strawberry.application.dai.IReactionRepository;
 import com.example.strawberry.application.dai.IUserRepository;
 import com.example.strawberry.application.service.IReactionService;
-import com.example.strawberry.config.exception.ExceptionAll;
 import com.example.strawberry.domain.dto.ReactionDTO;
 import com.example.strawberry.domain.entity.Post;
 import com.example.strawberry.domain.entity.Reaction;
@@ -13,7 +12,6 @@ import com.example.strawberry.domain.entity.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.Set;
 
 import static com.example.strawberry.adapter.web.base.ReactionType.*;
 
@@ -37,6 +35,25 @@ public class ReactionServiceImpl implements IReactionService {
 
     @Override
     public Reaction setReactionForPost(ReactionDTO reactionDTO) {
+//        Optional<Post> post = postRepository.findById(reactionDTO.getIdPost());
+//        postService.checkPostExists(post);
+//
+//        Optional<User> userReact = userRepository.findById(reactionDTO.getIdUserReact());
+//        userService.checkUserExists(userReact);
+//
+//        Reaction reaction = reactionRepository.findByPostIdAndUserId(reactionDTO.getIdPost(), reactionDTO.getIdUserReact());
+//        if (reaction != null) {
+//            if(reaction.getReactionType().equals(reactionDTO.getReactionType())) {
+//                reactionRepository.delete(reaction);
+//                return reaction;
+//            }
+//            reactionRepository.delete(reaction);
+//            Reaction reaction1 = SetReaction(reactionDTO, post, userReact);
+//            return reaction1;
+//        }
+//
+//        reaction = SetReaction(reactionDTO, post, userReact);
+//        return reaction;
         Optional<Post> post = postRepository.findById(reactionDTO.getIdPost());
         postService.checkPostExists(post);
 
@@ -45,25 +62,21 @@ public class ReactionServiceImpl implements IReactionService {
 
         Reaction reaction = reactionRepository.findByPostIdAndUserId(reactionDTO.getIdPost(), reactionDTO.getIdUserReact());
         if (reaction != null) {
-            if(reaction.getReactionType().equals(reactionDTO.getReactionType())) {
+            if (reaction.getReactionType().equals(reactionDTO.getReactionType())) {
                 reactionRepository.delete(reaction);
                 return reaction;
             }
-            reactionRepository.delete(reaction);
-            Reaction reaction1 = SetReaction(reactionDTO, post, userReact);
-            return reaction1;
+            SetReaction(reactionDTO, post, userReact, reaction);
+        } else {
+            reaction = new Reaction();
+            reaction.setPost(post.get());
+            reaction.setUser(userReact.get());
+            SetReaction(reactionDTO, post, userReact, reaction);
         }
-
-        reaction = SetReaction(reactionDTO, post, userReact);
         return reaction;
     }
 
-    private Reaction SetReaction(ReactionDTO reactionDTO, Optional<Post> post, Optional<User> userReact) {
-        Reaction reaction;
-        reaction = new Reaction();
-        reaction.setPost(post.get());
-        reaction.setUser(userReact.get());
-
+    private void SetReaction(ReactionDTO reactionDTO, Optional<Post> post, Optional<User> userReact, Reaction reaction) {
         if (LIKE.equals(reactionDTO.getReactionType())) {
             reaction.setReactionType(LIKE);
         } else if (LOVE.equals(reactionDTO.getReactionType())) {
@@ -80,7 +93,6 @@ public class ReactionServiceImpl implements IReactionService {
             reaction.setReactionType(ANGRY);
         }
         reactionRepository.save(reaction);
-        return reaction;
     }
 
 
