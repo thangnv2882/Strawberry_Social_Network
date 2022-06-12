@@ -6,6 +6,7 @@ import com.example.strawberry.application.constants.CommonConstant;
 import com.example.strawberry.application.constants.EmailConstant;
 import com.example.strawberry.application.constants.MessageConstant;
 import com.example.strawberry.application.dai.IPostRepository;
+import com.example.strawberry.application.dai.IReactionRepository;
 import com.example.strawberry.application.dai.IUserRegisterRepository;
 import com.example.strawberry.application.dai.IUserRepository;
 import com.example.strawberry.application.service.ISendMailService;
@@ -28,9 +29,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.security.auth.callback.PasswordCallback;
 import java.io.IOException;
 import java.util.*;
+
+import static com.example.strawberry.adapter.web.base.ReactionType.*;
+import static com.example.strawberry.adapter.web.base.ReactionType.ANGRY;
+import static com.example.strawberry.application.service.Impl.PostServiceImpl.checkPostExists;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -45,9 +49,10 @@ public class UserServiceImpl implements IUserService {
     private final MyUserDetailsService myUserDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
+    private final IReactionRepository reactionRepository;
 
 
-    public UserServiceImpl(IUserRepository userRepository, IUserRegisterRepository userRegisterRepository, IPostRepository postRepository, ModelMapper modelMapper, ISendMailService sendMailService, UploadFile uploadFile, AuthenticationManager authenticationManager, MyUserDetailsService myUserDetailsService, JwtTokenUtil jwtTokenUtil, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(IUserRepository userRepository, IUserRegisterRepository userRegisterRepository, IPostRepository postRepository, ModelMapper modelMapper, ISendMailService sendMailService, UploadFile uploadFile, AuthenticationManager authenticationManager, MyUserDetailsService myUserDetailsService, JwtTokenUtil jwtTokenUtil, PasswordEncoder passwordEncoder, IReactionRepository reactionRepository) {
         this.userRepository = userRepository;
         this.userRegisterRepository = userRegisterRepository;
         this.postRepository = postRepository;
@@ -58,6 +63,7 @@ public class UserServiceImpl implements IUserService {
         this.myUserDetailsService = myUserDetailsService;
         this.jwtTokenUtil = jwtTokenUtil;
         this.passwordEncoder = passwordEncoder;
+        this.reactionRepository = reactionRepository;
     }
 
 
@@ -237,7 +243,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Set<Post> getAllPostByIdUser(Long idUser) {
+    public List<?> getAllPostByIdUser(Long idUser) {
         Optional<User> user = userRepository.findById(idUser);
         checkUserExists(user);
         Set<Post> posts = user.get().getPosts();
@@ -245,7 +251,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Set<Post> getAllPostByIdUserAndAccess(Long idUser, int access) {
+    public List<?> getAllPostByIdUserAndAccess(Long idUser, int access) {
         Optional<User> user = userRepository.findById(idUser);
         checkUserExists(user);
         Set<Post> posts = user.get().getPosts();
@@ -257,6 +263,96 @@ public class UserServiceImpl implements IUserService {
         });
         return getAllPostNotInGroup(postsEnd);
     }
+//
+//    public Map<Long, Map<String, Object>> getAllPostNotInGroup(Set<Post> posts) {
+//        Set<Post> postEnd = new HashSet<>();
+//        posts.forEach(i -> {
+//            if (i.getGroup() == null) {
+//                postEnd.add(i);
+//            }
+//        });
+//
+//        Map<Long, Map<String, Object>> mapEnd = new HashMap<>();
+//        for (Post post : postEnd) {
+//            Map<String, Object> map = new HashMap<>();
+//            map.put("id", post.getId());
+//            map.put("createdAt", post.getCreatedAt());
+//            map.put("updatedAt", post.getUpdatedAt());
+//            map.put("contentPost", post.getContentPost());
+//            map.put("access", post.getAccess());
+//            map.put("user", post.getUser());
+//            map.put("reactions", getCountReactionOfPost(post.getId()));
+//            map.put("images", getAllImageByIdPost(post.getId()));
+//            map.put("videos", getAllVideoByIdPost(post.getId()));
+//            map.put("comments", getAllCommentByIdPost(post.getId()));
+//            mapEnd.put(post.getId(), map);
+//        }
+//        return mapEnd;
+//    }
+
+
+    public List<?> getAllPostNotInGroup(Set<Post> posts) {
+        Set<Post> postEnd = new HashSet<>();
+        posts.forEach(i -> {
+            if (i.getGroup() == null) {
+                postEnd.add(i);
+            }
+        });
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Post post : postEnd) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", post.getId());
+            map.put("createdAt", post.getCreatedAt());
+            map.put("updatedAt", post.getUpdatedAt());
+            map.put("contentPost", post.getContentPost());
+            map.put("access", post.getAccess());
+            map.put("user", post.getUser());
+            map.put("reactions", getCountReactionOfPost(post.getId()));
+            map.put("images", getAllImageByIdPost(post.getId()));
+            map.put("videos", getAllVideoByIdPost(post.getId()));
+            map.put("comments", getAllCommentByIdPost(post.getId()));
+            list.add(map);
+        }
+        return list;
+    }
+
+    @Override
+    public Map<String, Long> getCountReactionOfPost(Long idPost) {
+        Map<String, Long> countReaction = new HashMap<>();
+        countReaction.put("LIKE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
+        countReaction.put("LOVE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
+        countReaction.put("CARE", reactionRepository.countByPostIdAndAndReactionType(idPost, CARE));
+        countReaction.put("HAHA", reactionRepository.countByPostIdAndAndReactionType(idPost, HAHA));
+        countReaction.put("WOW", reactionRepository.countByPostIdAndAndReactionType(idPost, WOW));
+        countReaction.put("SAD", reactionRepository.countByPostIdAndAndReactionType(idPost, SAD));
+        countReaction.put("ANGRY", reactionRepository.countByPostIdAndAndReactionType(idPost, ANGRY));
+        countReaction.put("ALL", reactionRepository.countByPostId(idPost));
+        return countReaction;
+    }
+
+    @Override
+    public Set<Image> getAllImageByIdPost(Long idPost) {
+        Optional<Post> post = postRepository.findById(idPost);
+        checkPostExists(post);
+        Set<Image> images = postRepository.findById(idPost).get().getImages();
+        return images;
+    }
+
+    @Override
+    public Set<Video> getAllVideoByIdPost(Long idPost) {
+        Optional<Post> post = postRepository.findById(idPost);
+        checkPostExists(post);
+        Set<Video> videos = postRepository.findById(idPost).get().getVideos();
+        return videos;
+    }
+
+    @Override
+    public Set<Comment> getAllCommentByIdPost(Long idPost) {
+        Optional<Post> post = postRepository.findById(idPost);
+        checkPostExists(post);
+        Set<Comment> comments = post.get().getComments();
+        return comments;
+    }
 
     @Override
     public Set<Group> getAllGroupByIdUser(Long idUser) {
@@ -267,7 +363,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Set<Image> getAllImage(Long idUser) {
+    public Set<Image> getAllImageByIdUser(Long idUser) {
         Optional<User> user = userRepository.findById(idUser);
         checkUserExists(user);
         Set<Post> posts = user.get().getPosts();
@@ -282,7 +378,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Set<Video> getAllVideo(Long idUser) {
+    public Set<Video> getAllVideoByIdUser(Long idUser) {
         Optional<User> user = userRepository.findById(idUser);
         checkUserExists(user);
         Set<Post> posts = user.get().getPosts();
@@ -335,15 +431,4 @@ public class UserServiceImpl implements IUserService {
             throw new NotFoundException(MessageConstant.ACCOUNT_NOT_EXISTS);
         }
     }
-//
-    public Set<Post> getAllPostNotInGroup(Set<Post> posts) {
-        Set<Post> postEnd = new HashSet<>();
-        posts.forEach(i -> {
-            if (i.getGroup() == null) {
-                postEnd.add(i);
-            }
-        });
-        return postEnd;
-    }
-
 }

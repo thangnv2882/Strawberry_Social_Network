@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface IUserService {
@@ -25,12 +26,19 @@ public interface IUserService {
     User deleteUserById(Long id);
     User updateAvatarById(Long id, MultipartFile avatar) throws IOException;
 
-    Set<Post> getAllPostByIdUser(Long idUser);
-    Set<Post> getAllPostByIdUserAndAccess(Long idUser, int access);
+    List<?> getAllPostByIdUser(Long idUser);
+    List<?> getAllPostByIdUserAndAccess(Long idUser, int access);
 
     Set<Group> getAllGroupByIdUser(Long idUser);
-    Set<Image> getAllImage(Long idUser);
-    Set<Video> getAllVideo(Long idUser);
+    Set<Image> getAllImageByIdUser(Long idUser);
+    Set<Video> getAllVideoByIdUser(Long idUser);
 
     List<UserRegister> findAllUserRegister();
+
+    Map<String, Long> getCountReactionOfPost(Long idPost);
+
+    Set<Image> getAllImageByIdPost(Long idPost);
+    Set<Video> getAllVideoByIdPost(Long idPost);
+
+    Set<Comment> getAllCommentByIdPost(Long idPost);
 }

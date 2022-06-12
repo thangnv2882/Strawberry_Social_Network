@@ -142,7 +142,7 @@ public class PostServiceImpl implements IPostService {
     }
 
 
-    public void checkPostExists(Optional<Post> post) {
+    public static void checkPostExists(Optional<Post> post) {
         if (post.isEmpty()) {
             throw new NotFoundException(MessageConstant.POST_NOT_EXISTS);
         }
