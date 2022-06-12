@@ -140,4 +140,13 @@ public class UserController {
             @PathVariable("id") Long id) {
         return VsResponseUtil.ok(userService.getAllVideo(id));
     }
+
+
+    // More
+    @ApiOperation(value = "Xem danh sách tất cả tài khoản đã đăng ký.")
+    @GetMapping("users/register")
+    public ResponseEntity<?> getAllUserRegister() {
+        return VsResponseUtil.ok(userService.findAllUserRegister());
+    }
+
 }
