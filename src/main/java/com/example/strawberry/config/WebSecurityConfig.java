@@ -32,9 +32,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 ////            "/api/v1/users/register",
 ////            "/api/v1/users/"
 //    };
-    private static final String[] AUTHENTICATION_LIST_URLS = {
-        "/api/v1/users/**"
-    };
+//    private static final String[] AUTHENTICATION_LIST_URLS = {
+//        "/api/v1/users/**"
+//    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -51,7 +51,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().configurationSource(request -> corsConfiguration())
                 .and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers(AUTHENTICATION_LIST_URLS).authenticated()
+//                .antMatchers(AUTHENTICATION_LIST_URLS).authenticated()
                 .antMatchers("/auth/login").permitAll()
 
 //                .antMatchers(AUTHENTICATION_LIST_URLS).authenticated()
