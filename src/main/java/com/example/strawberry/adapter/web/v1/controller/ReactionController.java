@@ -30,19 +30,10 @@ public class ReactionController {
     }
 
     @ApiOperation(value = "Lấy ra số lượng reaction của bài post")
-    @GetMapping(UrlConstant.Reaction.DATA_REACTION_GET_ALL)
+    @GetMapping(UrlConstant.Reaction.DATA_REACTION_GET_COUNT)
     public ResponseEntity<?> getCountReactionOfPost(
             @PathVariable("idPost") Long idPost
     ) {
         return VsResponseUtil.ok(reactionService.getCountReactionOfPost(idPost));
-    }
-
-    @ApiOperation(value = "Lấy ra số lượng từng loại reaction của bài post")
-    @GetMapping(UrlConstant.Reaction.DATA_REACTION_GET_ONE)
-    public ResponseEntity<?> getCountReactionOfPost(
-            @PathVariable("idPost") Long idPost,
-            @PathVariable("reactionType") ReactionType reactionType
-    ) {
-        return VsResponseUtil.ok(reactionService.getCountReactionTypeOfPost(idPost, reactionType));
     }
 }

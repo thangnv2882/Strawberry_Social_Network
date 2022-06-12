@@ -11,6 +11,8 @@ import com.example.strawberry.domain.entity.Reaction;
 import com.example.strawberry.domain.entity.User;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.example.strawberry.adapter.web.base.ReactionType.*;
@@ -97,12 +99,16 @@ public class ReactionServiceImpl implements IReactionService {
 
 
     @Override
-    public Long getCountReactionOfPost(Long idPost) {
-        return reactionRepository.countByPostId(idPost);
-    }
-
-    @Override
-    public Long getCountReactionTypeOfPost(Long idPost, ReactionType reactionType) {
-        return reactionRepository.countByPostIdAndAndReactionType(idPost, reactionType);
+    public Map<String, Long> getCountReactionOfPost(Long idPost) {
+        Map<String, Long> countReaction = new HashMap<>();
+        countReaction.put("LIKE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
+        countReaction.put("LOVE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
+        countReaction.put("CARE", reactionRepository.countByPostIdAndAndReactionType(idPost, CARE));
+        countReaction.put("HAHA", reactionRepository.countByPostIdAndAndReactionType(idPost, HAHA));
+        countReaction.put("WOW", reactionRepository.countByPostIdAndAndReactionType(idPost, WOW));
+        countReaction.put("SAD", reactionRepository.countByPostIdAndAndReactionType(idPost, SAD));
+        countReaction.put("ANGRY", reactionRepository.countByPostIdAndAndReactionType(idPost, ANGRY));
+        countReaction.put("ALL", reactionRepository.countByPostId(idPost));
+        return countReaction;
     }
 }
