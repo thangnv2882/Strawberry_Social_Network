@@ -32,4 +32,5 @@ public interface IUserService {
     Set<Image> getAllImage(Long idUser);
     Set<Video> getAllVideo(Long idUser);
 
+    List<UserRegister> findAllUserRegister();
 }

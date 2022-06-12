@@ -289,6 +289,12 @@ public class UserServiceImpl implements IUserService {
         return videos;
     }
 
+    @Override
+    public List<UserRegister> findAllUserRegister() {
+        List<UserRegister> userRegisters = userRegisterRepository.findAll();
+        return userRegisters;
+    }
+
     public void checkUserExists(Optional<User> user) {
         if (user.isEmpty()) {
             throw new NotFoundException(MessageConstant.ACCOUNT_NOT_EXISTS);
