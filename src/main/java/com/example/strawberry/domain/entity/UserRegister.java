@@ -34,4 +34,6 @@ public class UserRegister extends AbstractAuditingEntity {
 
     private String code;
 
+    private String linkAvt;
+
 }

@@ -118,12 +118,15 @@ public class UserServiceImpl implements IUserService {
             sendMailService.sendMailWithText(EmailConstant.SUBJECT_ACTIVE, content, userDTO.getEmail());
             userRegister.setCode(code);
             userRegister.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
+            userRegister.setLinkAvt(CommonConstant.AVATAR_DEFAULT);
             userRegisterRepository.save(userRegister);
+            return userRegister;
         }
         UserRegister userRegister1 = userRegisterRepository.findByEmailOrPhoneNumber(userDTO.getEmail(), userDTO.getPhoneNumber());
         sendMailService.sendMailWithText(EmailConstant.SUBJECT_ACTIVE, content, userDTO.getEmail());
         userRegister1.setCode(code);
         userRegister1.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
+        userRegister1.setLinkAvt(CommonConstant.AVATAR_DEFAULT);
         userRegisterRepository.save(userRegister1);
         return userRegister1;
     }
@@ -136,7 +139,6 @@ public class UserServiceImpl implements IUserService {
             userRegister.get().setStatus(true);
             userRegister.get().setCode(null);
             User user = modelMapper.map(userRegister.get(), User.class);
-            user.setLinkAvt(CommonConstant.AVATAR_DEFAULT);
             user.setId(null);
             String password = passwordEncoder.encode(userRegister.get().getPassword());
             System.out.println(password);
