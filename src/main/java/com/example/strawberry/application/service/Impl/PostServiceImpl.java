@@ -15,9 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+
+import static com.example.strawberry.adapter.web.base.ReactionType.*;
+import static com.example.strawberry.adapter.web.base.ReactionType.ANGRY;
+import static com.example.strawberry.application.service.Impl.UserServiceImpl.checkUserExists;
 
 @Service
 public class PostServiceImpl implements IPostService {
@@ -47,15 +49,15 @@ public class PostServiceImpl implements IPostService {
         this.uploadFile = uploadFile;
     }
 
-    @Override
-    public Set<Post> getAllPostPublic(int access) {
-        return postRepository.findAllByAccess(access);
-    }
+//    @Override
+//    public Set<Post> getAllPostPublic(int access) {
+//        return postRepository.findAllByAccess(access);
+//    }
 
     @Override
     public Post createPost(Long idUser, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos) {
         Optional<User> user = userRepository.findById(idUser);
-        userService.checkUserExists(user);
+        checkUserExists(user);
         Post post = modelMapper.map(postDTO, Post.class);
         post.setUser(user.get());
         setMediaToPost(post, fileImages, fileVideos);
@@ -69,7 +71,7 @@ public class PostServiceImpl implements IPostService {
         checkPostExists(post);
 
         Optional<User> userFix = userRepository.findById(idUserFix);
-        userService.checkUserExists(userFix);
+        checkUserExists(userFix);
         User userOwns = post.get().getUser();
         if(userOwns.getId() != userFix.get().getId()) {
             throw new ExceptionAll("This post is not yours.");
@@ -86,7 +88,7 @@ public class PostServiceImpl implements IPostService {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Optional<User> userFix = userRepository.findById(idUserFix);
-        userService.checkUserExists(userFix);
+        checkUserExists(userFix);
         User userOwns = post.get().getUser();
         if(userOwns.getId() != userFix.get().getId()) {
             throw new ExceptionAll("This post is not yours.");
@@ -95,8 +97,53 @@ public class PostServiceImpl implements IPostService {
         return post.get();
     }
 
+
     @Override
-    public Set<Image> getAllImageById(Long idPost) {
+    public List<?> getAllPostPublic(int access) {
+        List<Post> posts = postRepository.findAll();
+        return getAllPostNotInGroup(posts);
+    }
+
+    public List<?> getAllPostNotInGroup(List<Post> posts) {
+        Set<Post> postEnd = new HashSet<>();
+        posts.forEach(i -> {
+            if (i.getGroup() == null) {
+                postEnd.add(i);
+            }
+        });
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Post post : postEnd) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", post.getId());
+            map.put("createdAt", post.getCreatedAt());
+            map.put("updatedAt", post.getUpdatedAt());
+            map.put("contentPost", post.getContentPost());
+            map.put("access", post.getAccess());
+            map.put("user", post.getUser());
+            map.put("reactions", getCountReactionOfPost(post.getId()));
+            map.put("images", getAllImageByIdPost(post.getId()));
+            map.put("videos", getAllVideoByIdPost(post.getId()));
+            map.put("comments", getAllCommentByIdPost(post.getId()));
+            list.add(map);
+        }
+        return list;
+    }
+
+    @Override
+    public Map<String, Long> getCountReactionOfPost(Long idPost) {
+        Map<String, Long> countReaction = new HashMap<>();
+        countReaction.put("LIKE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
+        countReaction.put("LOVE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
+        countReaction.put("CARE", reactionRepository.countByPostIdAndAndReactionType(idPost, CARE));
+        countReaction.put("HAHA", reactionRepository.countByPostIdAndAndReactionType(idPost, HAHA));
+        countReaction.put("WOW", reactionRepository.countByPostIdAndAndReactionType(idPost, WOW));
+        countReaction.put("SAD", reactionRepository.countByPostIdAndAndReactionType(idPost, SAD));
+        countReaction.put("ANGRY", reactionRepository.countByPostIdAndAndReactionType(idPost, ANGRY));
+        countReaction.put("ALL", reactionRepository.countByPostId(idPost));
+        return countReaction;
+    }
+    @Override
+    public Set<Image> getAllImageByIdPost(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Image> images = postRepository.findById(idPost).get().getImages();
@@ -104,7 +151,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public Set<Video> getAllVideoById(Long idPost) {
+    public Set<Video> getAllVideoByIdPost(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Video> videos = postRepository.findById(idPost).get().getVideos();
@@ -124,7 +171,7 @@ public class PostServiceImpl implements IPostService {
         Optional<Group> group = groupRepository.findById(idGroup);
         groupService.checkGroupExists(group);
         Optional<User> user = userRepository.findById(idUser);
-        userService.checkUserExists(user);
+        checkUserExists(user);
 
         Set<User> users = group.get().getUsers();
         for (User i : users) {

@@ -69,14 +69,14 @@ public class PostController {
     @ApiOperation(value = "Lấy ra tất cả ảnh của post theo id.")
     @GetMapping(UrlConstant.Post.DATA_POST_GET_IMAGES)
     public ResponseEntity<?> getAllImageById(@PathVariable("idPost") Long idPost) {
-        return VsResponseUtil.ok(postService.getAllImageById(idPost));
+        return VsResponseUtil.ok(postService.getAllImageByIdPost(idPost));
     }
 
     @ApiOperation(value = "Lấy ra tất cả video của post theo id.")
     @GetMapping(UrlConstant.Post.DATA_POST_GET_VIDEOS)
     public ResponseEntity<?> getAllVideoById(
             @PathVariable("idPost") Long idPost) {
-        return VsResponseUtil.ok(postService.getAllVideoById(idPost));
+        return VsResponseUtil.ok(postService.getAllVideoByIdPost(idPost));
     }
 
     @ApiOperation(value = "Lấy ra tất cả bình luận của bài post.")
