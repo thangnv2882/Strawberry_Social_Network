@@ -103,24 +103,28 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserRegister registerUser(UserDTO userDTO) {
         UserRegister userRegister = modelMapper.map(userDTO, UserRegister.class);
-        if (!isEmailOrPhoneNumberExists(userRegister)) {
-            Random random = new Random();
-            String rand = Integer.toString(random.nextInt(9999));
 
-            // Chuỗi có 4 ký tự
-            String code = Strings.padStart(rand, 4, '0');
-            userRegister.setCode(code);
-            String content = EmailConstant.CONTENT
-                    + "\nThis is your account information:"
-                    + ".\n\tEmail: " + userDTO.getEmail()
-                    + ".\n\tPassword: " + userDTO.getPassword()
-                    + ".\n\nYOUR ACTIVATION CODE: " + code
-                    + ".\nThank you for using our service.";
+        Random random = new Random();
+        String rand = Integer.toString(random.nextInt(9999));
+        // Chuỗi có 4 ký tự
+        String code = Strings.padStart(rand, 4, '0');
+        String content = EmailConstant.CONTENT
+                + "\nThis is your account information:"
+                + "\n\tEmail: " + userDTO.getEmail()
+                + ".\n\tPassword: " + userDTO.getPassword()
+                + ".\n\nYOUR ACTIVATION CODE: " + code
+                + ".\nThank you for using our service.";
+        if (!isEmailOrPhoneNumberExists(userRegister)) {
             sendMailService.sendMailWithText(EmailConstant.SUBJECT_ACTIVE, content, userDTO.getEmail());
+            userRegister.setCode(code);
             userRegister.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
             userRegisterRepository.save(userRegister);
         }
         UserRegister userRegister1 = userRegisterRepository.findByEmailOrPhoneNumber(userDTO.getEmail(), userDTO.getPhoneNumber());
+        sendMailService.sendMailWithText(EmailConstant.SUBJECT_ACTIVE, content, userDTO.getEmail());
+        userRegister1.setCode(code);
+        userRegister1.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
+        userRegisterRepository.save(userRegister1);
         return userRegister1;
     }
 
