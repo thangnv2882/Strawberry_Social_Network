@@ -1,5 +1,7 @@
 package com.example.strawberry.application.service.Impl;
 
+import com.example.strawberry.adapter.web.v1.transfer.parameter.auth.AuthenticationRequest;
+import com.example.strawberry.adapter.web.v1.transfer.response.AuthenticationResponse;
 import com.example.strawberry.application.constants.CommonConstant;
 import com.example.strawberry.application.constants.EmailConstant;
 import com.example.strawberry.application.constants.MessageConstant;
@@ -8,6 +10,7 @@ import com.example.strawberry.application.dai.IUserRegisterRepository;
 import com.example.strawberry.application.dai.IUserRepository;
 import com.example.strawberry.application.service.ISendMailService;
 import com.example.strawberry.application.service.IUserService;
+import com.example.strawberry.application.utils.JwtTokenUtil;
 import com.example.strawberry.application.utils.UploadFile;
 import com.example.strawberry.config.exception.DuplicateException;
 import com.example.strawberry.config.exception.ExceptionAll;
@@ -15,10 +18,17 @@ import com.example.strawberry.config.exception.NotFoundException;
 import com.example.strawberry.domain.dto.ResetPasswordDTO;
 import com.example.strawberry.domain.dto.UserDTO;
 import com.example.strawberry.domain.entity.*;
+import com.google.common.base.Strings;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.security.auth.callback.PasswordCallback;
 import java.io.IOException;
 import java.util.*;
 
@@ -31,14 +41,23 @@ public class UserServiceImpl implements IUserService {
     private final ModelMapper modelMapper;
     private final ISendMailService sendMailService;
     private final UploadFile uploadFile;
+    private final AuthenticationManager authenticationManager;
+    private final MyUserDetailsService myUserDetailsService;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(IUserRepository userRepository, IUserRegisterRepository userRegisterRepository, IPostRepository postRepository, ModelMapper modelMapper, ISendMailService sendMailService, UploadFile uploadFile) {
+
+    public UserServiceImpl(IUserRepository userRepository, IUserRegisterRepository userRegisterRepository, IPostRepository postRepository, ModelMapper modelMapper, ISendMailService sendMailService, UploadFile uploadFile, AuthenticationManager authenticationManager, MyUserDetailsService myUserDetailsService, JwtTokenUtil jwtTokenUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userRegisterRepository = userRegisterRepository;
         this.postRepository = postRepository;
         this.modelMapper = modelMapper;
         this.sendMailService = sendMailService;
         this.uploadFile = uploadFile;
+        this.authenticationManager = authenticationManager;
+        this.myUserDetailsService = myUserDetailsService;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -55,20 +74,41 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public User login(UserDTO userDTO) {
-        User user = userRepository.findByEmailOrPhoneNumber(userDTO.getEmail(), userDTO.getPhoneNumber());
-        if (user.getPassword().compareTo(userDTO.getPassword()) == 0) {
-            return user;
+    public AuthenticationResponse login(AuthenticationRequest authenticationRequest) throws Exception {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authenticationRequest.getEmail(), authenticationRequest.getPassword()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            throw new Exception("Incorrect username or password");
         }
-        throw new NotFoundException(MessageConstant.ACCOUNT_NOT_EXISTS);
+
+        UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getEmail());
+        String jwt = jwtTokenUtil.generateToken(userDetails);
+        User user = userRepository.findByEmail(authenticationRequest.getEmail());
+        return new AuthenticationResponse(user.getId(), authenticationRequest.getEmail(), authenticationRequest.getPhoneNumber(), jwt);
     }
+
+//    @Override
+//    public User login(UserDTO userDTO) {
+//        User user = userRepository.findByEmailOrPhoneNumber(userDTO.getEmail(), userDTO.getPhoneNumber());
+//        if (user.getPassword().compareTo(userDTO.getPassword()) == 0) {
+//            return user;
+//        }
+//        throw new NotFoundException(MessageConstant.ACCOUNT_NOT_EXISTS);
+//    }
 
     @Override
     public UserRegister registerUser(UserDTO userDTO) {
         UserRegister userRegister = modelMapper.map(userDTO, UserRegister.class);
         if (!isEmailOrPhoneNumberExists(userRegister)) {
             Random random = new Random();
-            String code = Integer.toString(random.nextInt(9999));
+            String rand = Integer.toString(random.nextInt(9999));
+
+            // Chuỗi có 4 ký tự
+            String code = Strings.padStart(rand, 4, '0');
             userRegister.setCode(code);
             String content = EmailConstant.CONTENT
                     + "\nThis is your account information:"
@@ -94,6 +134,9 @@ public class UserServiceImpl implements IUserService {
             User user = modelMapper.map(userRegister.get(), User.class);
             user.setLinkAvt(CommonConstant.AVATAR_DEFAULT);
             user.setId(null);
+            String password = passwordEncoder.encode(userRegister.get().getPassword());
+            System.out.println(password);
+            user.setPassword(password);
             userRepository.save(user);
             return user;
         }
@@ -112,25 +155,32 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public User forgetPassword(String email) {
-        User user = userRepository.findByEmail(email);
+    public String forgetPassword(String email) {
+        UserRegister user = userRegisterRepository.findByEmail(email);
         if (user == null) {
             throw new NotFoundException(MessageConstant.ACCOUNT_NOT_EXISTS);
         }
+
         String content = "YOUR PASSWORD: " + user.getPassword()
                 + ".\nThank you for using our service.";
         sendMailService.sendMailWithText(EmailConstant.SUBJECT_NOTIFICATION, content, email);
-        return user;
+        return EmailConstant.SENT_SUCCESSFULLY;
     }
 
     @Override
     public User changePassword(Long id, ResetPasswordDTO resetPasswordDTO) {
         Optional<User> user = userRepository.findById(id);
+        UserRegister userRegister = userRegisterRepository.findByEmailOrPhoneNumber(user.get().getEmail(), user.get().getPhoneNumber());
         checkUserExists(user);
-        if (user.get().getPassword().compareTo(resetPasswordDTO.getOldPassword()) != 0) {
+        checkUserRegisterExists(Optional.ofNullable(userRegister));
+        if (passwordEncoder.matches(resetPasswordDTO.getOldPassword(), user.get().getPassword()) == false) {
             throw new ExceptionAll("Incorrect password");
         }
-        user.get().setPassword(resetPasswordDTO.getNewPassword());
+        String password = passwordEncoder.encode(resetPasswordDTO.getNewPassword());
+        user.get().setPassword(password);
+        userRegister.setPassword(resetPasswordDTO.getNewPassword());
+        userRepository.save(user.get());
+        userRegisterRepository.save(userRegister);
         return user.get();
     }
 
@@ -146,6 +196,10 @@ public class UserServiceImpl implements IUserService {
         modelMapper.map(userDTO, user.get());
         modelMapper.map(userRegisterNew, userRegisterOriginal);
         userRegisterOriginal.setStatus(Boolean.TRUE);
+
+        String password = passwordEncoder.encode(userDTO.getPassword());
+        user.get().setPassword(password);
+
         userRegisterRepository.save(userRegisterOriginal);
         userRepository.save(user.get());
 //        user.get().setPassword(passwordEncoder.encode(userDTO.getPassword()));
@@ -156,10 +210,10 @@ public class UserServiceImpl implements IUserService {
     public User deleteUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         checkUserExists(user);
-        Optional<UserRegister> userRegister = userRegisterRepository.findById(id);
-        checkUserRegisterExists(userRegister);
-        userRegister.get().setStatus(Boolean.FALSE);
+        UserRegister userRegister = userRegisterRepository.findByEmailOrPhoneNumber(user.get().getEmail(), user.get().getPhoneNumber());
+        checkUserRegisterExists(Optional.ofNullable(userRegister));
         userRepository.delete(user.get());
+        userRegisterRepository.delete(userRegister);
         return user.get();
     }
 
