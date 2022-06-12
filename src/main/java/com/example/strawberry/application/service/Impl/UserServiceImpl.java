@@ -263,33 +263,6 @@ public class UserServiceImpl implements IUserService {
         });
         return getAllPostNotInGroup(postsEnd);
     }
-//
-//    public Map<Long, Map<String, Object>> getAllPostNotInGroup(Set<Post> posts) {
-//        Set<Post> postEnd = new HashSet<>();
-//        posts.forEach(i -> {
-//            if (i.getGroup() == null) {
-//                postEnd.add(i);
-//            }
-//        });
-//
-//        Map<Long, Map<String, Object>> mapEnd = new HashMap<>();
-//        for (Post post : postEnd) {
-//            Map<String, Object> map = new HashMap<>();
-//            map.put("id", post.getId());
-//            map.put("createdAt", post.getCreatedAt());
-//            map.put("updatedAt", post.getUpdatedAt());
-//            map.put("contentPost", post.getContentPost());
-//            map.put("access", post.getAccess());
-//            map.put("user", post.getUser());
-//            map.put("reactions", getCountReactionOfPost(post.getId()));
-//            map.put("images", getAllImageByIdPost(post.getId()));
-//            map.put("videos", getAllVideoByIdPost(post.getId()));
-//            map.put("comments", getAllCommentByIdPost(post.getId()));
-//            mapEnd.put(post.getId(), map);
-//        }
-//        return mapEnd;
-//    }
-
 
     public List<?> getAllPostNotInGroup(Set<Post> posts) {
         Set<Post> postEnd = new HashSet<>();
@@ -397,7 +370,7 @@ public class UserServiceImpl implements IUserService {
         return userRegisters;
     }
 
-    public void checkUserExists(Optional<User> user) {
+    public static void checkUserExists(Optional<User> user) {
         if (user.isEmpty()) {
             throw new NotFoundException(MessageConstant.ACCOUNT_NOT_EXISTS);
         }
