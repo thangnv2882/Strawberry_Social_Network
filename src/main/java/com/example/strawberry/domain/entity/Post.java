@@ -37,9 +37,6 @@ public class Post extends AbstractAuditingEntity {
 //    @NotBlank
     private int access;
 
-    private Long likes = 0L;
-    private Long dislikes = 0L;
-
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
