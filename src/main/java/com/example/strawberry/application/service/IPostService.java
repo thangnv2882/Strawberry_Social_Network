@@ -15,14 +15,11 @@ public interface IPostService {
     Post updatePost(Long idUserFix, Long idPost, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos);
     Post deletePostById(Long idUserFix, Long idPost);
 
-    Set<Image> getAllImageByIdPost(Long id);
-    Set<Video> getAllVideoByIdPost(Long id);
-    Map<String, Long> getCountReactionOfPost(Long idPost);
+//    Set<Image> getAllImageByIdPost(Long id);
+//    Set<Video> getAllVideoByIdPost(Long id);
+//    Map<String, Long> getCountReactionOfPost(Long idPost);
 
-//    Post setReactByIdPost(ReactionDTO reactionDTO);
-//    Set<Reaction> getAllReactionByIdPost(Long idPost);
-
-    Set<Comment> getAllCommentByIdPost(Long idPost);
+//    Set<Comment> getAllCommentByIdPost(Long idPost);
 
     Post createPostInGroup(Long idGroup, Long idUser, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos);
 

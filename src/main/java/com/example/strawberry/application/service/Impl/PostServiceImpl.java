@@ -7,7 +7,6 @@ import com.example.strawberry.application.utils.UploadFile;
 import com.example.strawberry.config.exception.ExceptionAll;
 import com.example.strawberry.config.exception.NotFoundException;
 import com.example.strawberry.domain.dto.PostDTO;
-import com.example.strawberry.domain.dto.ReactionDTO;
 import com.example.strawberry.domain.entity.*;
 import com.github.slugify.Slugify;
 import org.modelmapper.ModelMapper;
@@ -18,18 +17,16 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.example.strawberry.adapter.web.base.ReactionType.*;
-import static com.example.strawberry.adapter.web.base.ReactionType.ANGRY;
-import static com.example.strawberry.application.service.Impl.UserServiceImpl.checkUserExists;
 
 @Service
 public class PostServiceImpl implements IPostService {
 
-    private final IPostRepository postRepository;
+    private static IPostRepository postRepository;
     private final IUserRepository userRepository;
     private final IGroupRepository groupRepository;
     private final IImageRepository imageRepository;
     private final IVideoRepository videoRepository;
-    private final IReactionRepository reactionRepository;
+    private static IReactionRepository reactionRepository;
     private final UserServiceImpl userService;
     private final GroupServiceImpl groupService;
     private final ModelMapper modelMapper;
@@ -49,15 +46,10 @@ public class PostServiceImpl implements IPostService {
         this.uploadFile = uploadFile;
     }
 
-//    @Override
-//    public Set<Post> getAllPostPublic(int access) {
-//        return postRepository.findAllByAccess(access);
-//    }
-
     @Override
     public Post createPost(Long idUser, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos) {
         Optional<User> user = userRepository.findById(idUser);
-        checkUserExists(user);
+        UserServiceImpl.checkUserExists(user);
         Post post = modelMapper.map(postDTO, Post.class);
         post.setUser(user.get());
         setMediaToPost(post, fileImages, fileVideos);
@@ -71,9 +63,9 @@ public class PostServiceImpl implements IPostService {
         checkPostExists(post);
 
         Optional<User> userFix = userRepository.findById(idUserFix);
-        checkUserExists(userFix);
+        UserServiceImpl.checkUserExists(userFix);
         User userOwns = post.get().getUser();
-        if(userOwns.getId() != userFix.get().getId()) {
+        if(userOwns.getIdUser() != userFix.get().getIdUser()) {
             throw new ExceptionAll("This post is not yours.");
         }
 
@@ -88,9 +80,9 @@ public class PostServiceImpl implements IPostService {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Optional<User> userFix = userRepository.findById(idUserFix);
-        checkUserExists(userFix);
+        UserServiceImpl.checkUserExists(userFix);
         User userOwns = post.get().getUser();
-        if(userOwns.getId() != userFix.get().getId()) {
+        if(userOwns.getIdUser() != userFix.get().getIdUser()) {
             throw new ExceptionAll("This post is not yours.");
         }
         postRepository.delete(post.get());
@@ -100,11 +92,11 @@ public class PostServiceImpl implements IPostService {
 
     @Override
     public List<?> getAllPostPublic(int access) {
-        List<Post> posts = postRepository.findAll();
+        Set<Post> posts = postRepository.findAllByAccess(access);
         return getAllPostNotInGroup(posts);
     }
 
-    public List<?> getAllPostNotInGroup(List<Post> posts) {
+    public static List<?> getAllPostNotInGroup(Set<Post> posts) {
         Set<Post> postEnd = new HashSet<>();
         posts.forEach(i -> {
             if (i.getGroup() == null) {
@@ -114,52 +106,108 @@ public class PostServiceImpl implements IPostService {
         List<Map<String, Object>> list = new ArrayList<>();
         for (Post post : postEnd) {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", post.getId());
+            map.put("idPost", post.getIdPost());
             map.put("createdAt", post.getCreatedAt());
             map.put("updatedAt", post.getUpdatedAt());
             map.put("contentPost", post.getContentPost());
             map.put("access", post.getAccess());
             map.put("user", post.getUser());
-            map.put("reactions", getCountReactionOfPost(post.getId()));
-            map.put("images", getAllImageByIdPost(post.getId()));
-            map.put("videos", getAllVideoByIdPost(post.getId()));
-            map.put("comments", getAllCommentByIdPost(post.getId()));
+            map.put("reactions", getCountReactionOfPost(post.getIdPost()));
+            map.put("images", getAllImageByIdPostSimple(post.getIdPost()));
+            map.put("videos", getAllVideoByIdPostSimple(post.getIdPost()));
+            map.put("countComments", countCommentByIdPost(post.getIdPost()));
             list.add(map);
         }
+
+        list.sort((l1, l2) -> ((Long) l2.get("idPost")).compareTo((Long) l1.get("idPost")));
+
         return list;
     }
 
-    @Override
-    public Map<String, Long> getCountReactionOfPost(Long idPost) {
+//    Hiện thị các lượt bày tỏ cảm xúc của bài post này
+    public static Map<String, Long> getCountReactionOfPost(Long idPost) {
         Map<String, Long> countReaction = new HashMap<>();
-        countReaction.put("LIKE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
-        countReaction.put("LOVE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
-        countReaction.put("CARE", reactionRepository.countByPostIdAndAndReactionType(idPost, CARE));
-        countReaction.put("HAHA", reactionRepository.countByPostIdAndAndReactionType(idPost, HAHA));
-        countReaction.put("WOW", reactionRepository.countByPostIdAndAndReactionType(idPost, WOW));
-        countReaction.put("SAD", reactionRepository.countByPostIdAndAndReactionType(idPost, SAD));
-        countReaction.put("ANGRY", reactionRepository.countByPostIdAndAndReactionType(idPost, ANGRY));
-        countReaction.put("ALL", reactionRepository.countByPostId(idPost));
+        countReaction.put("LIKE", reactionRepository.countByPostIdPostAndAndReactionType(idPost, LIKE));
+        countReaction.put("LOVE", reactionRepository.countByPostIdPostAndAndReactionType(idPost, LIKE));
+        countReaction.put("CARE", reactionRepository.countByPostIdPostAndAndReactionType(idPost, CARE));
+        countReaction.put("HAHA", reactionRepository.countByPostIdPostAndAndReactionType(idPost, HAHA));
+        countReaction.put("WOW", reactionRepository.countByPostIdPostAndAndReactionType(idPost, WOW));
+        countReaction.put("SAD", reactionRepository.countByPostIdPostAndAndReactionType(idPost, SAD));
+        countReaction.put("ANGRY", reactionRepository.countByPostIdPostAndAndReactionType(idPost, ANGRY));
+        countReaction.put("ALL", reactionRepository.countByPostIdPost(idPost));
         return countReaction;
     }
-    @Override
-    public Set<Image> getAllImageByIdPost(Long idPost) {
+
+
+//    Lấy ra thông tin cơ bản của Video trong Post (idImage, linkImage)
+    public static List<Map<String, Object>> getAllImageByIdPostSimple(Long idPost) {
+        Optional<Post> post = postRepository.findById(idPost);
+        checkPostExists(post);
+        Set<Image> images = postRepository.findById(idPost).get().getImages();
+        List<Map<String, Object>> list = new ArrayList<>();
+        images.forEach(image -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("idImage", image.getIdImage());
+            map.put("linkImage", image.getLinkImage());
+            list.add(map);
+        });
+
+//        Sắp xếp theo id tăng dần
+        list.sort((l1, l2) -> ((Long) l1.get("idImage")).compareTo((Long) l2.get("idImage")));
+
+        return list;
+    }
+
+//    Lấy ra thông tin cơ bản của Video trong Post (idVideo, linkVideo)
+    public static List<Map<String, Object>> getAllVideoByIdPostSimple(Long idPost) {
+        Optional<Post> post = postRepository.findById(idPost);
+        checkPostExists(post);
+        Set<Video> videos = postRepository.findById(idPost).get().getVideos();
+        List<Map<String, Object>> list = new ArrayList<>();
+        videos.forEach(video -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("idVideo", video.getIdVideo());
+            map.put("linkVideo", video.getLinkVideo());
+            list.add(map);
+        });
+
+//        Sắp xếp theo id tăng dần
+        list.sort((l1, l2) -> ((Long) l1.get("idVideo")).compareTo((Long) l2.get("idVideo")));
+        return list;
+    }
+
+//    Lấy ra thông tin chi tiết của tất cả ảnh trong 1 bài viết
+    public static Set<Image> getAllImageByIdPost(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Image> images = postRepository.findById(idPost).get().getImages();
         return images;
     }
 
-    @Override
-    public Set<Video> getAllVideoByIdPost(Long idPost) {
+
+//    Lấy ra thông tin chi tiết của tất cả video trong 1 bài viết
+    public static Set<Video> getAllVideoByIdPost(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Video> videos = postRepository.findById(idPost).get().getVideos();
         return videos;
     }
 
-    @Override
-    public Set<Comment> getAllCommentByIdPost(Long idPost) {
+    public static Long countCommentByIdPost(Long idPost) {
+        Optional<Post> post = postRepository.findById(idPost);
+        checkPostExists(post);
+        Set<Comment> comments = post.get().getComments();
+        Long countComment = Long.valueOf(comments.size());
+
+        for(Comment comment : comments) {
+            countComment += comment.getCommentChilds().size();
+        }
+
+        return countComment;
+    }
+
+//    Lấy ra thông tin chi tiết của tất cả bình luận trong 1 bài viết
+    public static Set<Comment> getAllCommentByIdPost(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Comment> comments = post.get().getComments();
@@ -171,11 +219,11 @@ public class PostServiceImpl implements IPostService {
         Optional<Group> group = groupRepository.findById(idGroup);
         groupService.checkGroupExists(group);
         Optional<User> user = userRepository.findById(idUser);
-        checkUserExists(user);
+        UserServiceImpl.checkUserExists(user);
 
         Set<User> users = group.get().getUsers();
         for (User i : users) {
-            if(i.getId() == user.get().getId()) {
+            if(i.getIdUser() == user.get().getIdUser()) {
                 Post post = modelMapper.map(postDTO, Post.class);
                 post.setUser(user.get());
                 post.setGroup(group.get());

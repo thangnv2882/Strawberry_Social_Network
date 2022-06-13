@@ -35,10 +35,10 @@ public interface IUserService {
 
     List<UserRegister> findAllUserRegister();
 
-    Map<String, Long> getCountReactionOfPost(Long idPost);
-
-    Set<Image> getAllImageByIdPost(Long idPost);
-    Set<Video> getAllVideoByIdPost(Long idPost);
-
-    Set<Comment> getAllCommentByIdPost(Long idPost);
+//    Map<String, Long> getCountReactionOfPost(Long idPost);
+//
+//    Set<Image> getAllImageByIdPost(Long idPost);
+//    Set<Video> getAllVideoByIdPost(Long idPost);
+//
+//    Set<Comment> getAllCommentByIdPost(Long idPost);
 }
