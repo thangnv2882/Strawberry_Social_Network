@@ -1,6 +1,5 @@
 package com.example.strawberry.application.service.Impl;
 
-import com.example.strawberry.adapter.web.base.ReactionType;
 import com.example.strawberry.application.dai.IPostRepository;
 import com.example.strawberry.application.dai.IReactionRepository;
 import com.example.strawberry.application.dai.IUserRepository;
@@ -43,7 +42,7 @@ public class ReactionServiceImpl implements IReactionService {
         Optional<User> userReact = userRepository.findById(reactionDTO.getIdUserReact());
         userService.checkUserExists(userReact);
 
-        Reaction reaction = reactionRepository.findByPostIdAndUserId(reactionDTO.getIdPost(), reactionDTO.getIdUserReact());
+        Reaction reaction = reactionRepository.findByPostIdPostAndUserIdUser(reactionDTO.getIdPost(), reactionDTO.getIdUserReact());
         if (reaction != null) {
             if (reaction.getReactionType().equals(reactionDTO.getReactionType())) {
                 reactionRepository.delete(reaction);
@@ -82,14 +81,14 @@ public class ReactionServiceImpl implements IReactionService {
     @Override
     public Map<String, Long> getCountReactionOfPost(Long idPost) {
         Map<String, Long> countReaction = new HashMap<>();
-        countReaction.put("LIKE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
-        countReaction.put("LOVE", reactionRepository.countByPostIdAndAndReactionType(idPost, LIKE));
-        countReaction.put("CARE", reactionRepository.countByPostIdAndAndReactionType(idPost, CARE));
-        countReaction.put("HAHA", reactionRepository.countByPostIdAndAndReactionType(idPost, HAHA));
-        countReaction.put("WOW", reactionRepository.countByPostIdAndAndReactionType(idPost, WOW));
-        countReaction.put("SAD", reactionRepository.countByPostIdAndAndReactionType(idPost, SAD));
-        countReaction.put("ANGRY", reactionRepository.countByPostIdAndAndReactionType(idPost, ANGRY));
-        countReaction.put("ALL", reactionRepository.countByPostId(idPost));
+        countReaction.put("LIKE", reactionRepository.countByPostIdPostAndAndReactionType(idPost, LIKE));
+        countReaction.put("LOVE", reactionRepository.countByPostIdPostAndAndReactionType(idPost, LIKE));
+        countReaction.put("CARE", reactionRepository.countByPostIdPostAndAndReactionType(idPost, CARE));
+        countReaction.put("HAHA", reactionRepository.countByPostIdPostAndAndReactionType(idPost, HAHA));
+        countReaction.put("WOW", reactionRepository.countByPostIdPostAndAndReactionType(idPost, WOW));
+        countReaction.put("SAD", reactionRepository.countByPostIdPostAndAndReactionType(idPost, SAD));
+        countReaction.put("ANGRY", reactionRepository.countByPostIdPostAndAndReactionType(idPost, ANGRY));
+        countReaction.put("ALL", reactionRepository.countByPostIdPost(idPost));
         return countReaction;
     }
 }
