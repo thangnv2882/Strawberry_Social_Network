@@ -28,8 +28,9 @@ public class Group extends AbstractAuditingEntity{
 
     private String name;
     private int access;
+    private Long idUserCreated;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "groups")
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER, mappedBy = "groups")
     @JsonIgnore
     private Set<User> users = new HashSet<>();
 

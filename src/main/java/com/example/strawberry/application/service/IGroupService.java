@@ -18,5 +18,7 @@ public interface IGroupService {
     Set<Post> getAllPostInGroup(Long idGroup, Long idUser);
     Set<User> getAllUserInGroup(Long idGroup);
 
+//    String deleteGroup(Long idGroup, Long idUser);
+
 
 }

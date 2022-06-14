@@ -4,6 +4,7 @@ import com.example.strawberry.application.constants.MessageConstant;
 import com.example.strawberry.application.dai.IGroupRepository;
 import com.example.strawberry.application.dai.IUserRepository;
 import com.example.strawberry.application.service.IGroupService;
+import com.example.strawberry.config.exception.ExceptionAll;
 import com.example.strawberry.config.exception.NotFoundException;
 import com.example.strawberry.domain.dto.GroupDTO;
 import com.example.strawberry.domain.entity.Group;
@@ -12,10 +13,7 @@ import com.example.strawberry.domain.entity.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GroupServiceImpl implements IGroupService {
@@ -51,12 +49,14 @@ public class GroupServiceImpl implements IGroupService {
         return users;
     }
 
+
     @Override
     public Group createGroup(Long idUser, GroupDTO groupDTO) {
         Optional<User> user = userRepository.findById(idUser);
         userService.checkUserExists(user);
 
         Group group = modelMapper.map(groupDTO, Group.class);
+        group.setIdUserCreated(idUser);
 
         Set<User> users = new HashSet<>();
         Set<Group> groups = user.get().getGroups();
@@ -72,6 +72,19 @@ public class GroupServiceImpl implements IGroupService {
 
         return group;
     }
+//
+//    @Override
+//    public String deleteGroup(Long idGroup, Long idUser) {
+//        Optional<Group> group = groupRepository.findById(idGroup);
+//        checkGroupExists(group);
+//        System.out.println(group.get().getIdUserCreated());
+//        if(group.get().getIdUserCreated() == idUser) {
+//            groupRepository.delete(group.get());
+//            return MessageConstant.DELETE_GROUP_SUSCESS;
+//        }
+//        throw new ExceptionAll(MessageConstant.USER_NOT_IS_ADMIN_GROUP);
+//    }
+
 
     @Override
     public Group addUserToGroup(Long idGroup, Long idUser) {
