@@ -45,8 +45,16 @@ public class GroupController {
         return VsResponseUtil.ok(groupService.createGroup(idUser, groupDTO));
     }
 
+//    @ApiOperation(value = "Xoá nhóm.")
+//    @DeleteMapping(UrlConstant.Group.DATA_GROUP_DELETE_GROUP)
+//    public ResponseEntity<?> deleteGroup(
+//            @PathVariable("idGroup") Long idGroup,
+//            @PathVariable("idUser") Long idUser) {
+//        return VsResponseUtil.ok(groupService.deleteGroup(idGroup, idUser));
+//    }
+
     @ApiOperation(value = "Thêm thành viên vào nhóm.")
-    @GetMapping(UrlConstant.Group.DATA_GROUP_ADD_MEMBER)
+    @PostMapping(UrlConstant.Group.DATA_GROUP_ADD_MEMBER)
     public ResponseEntity<?> createGroup(
             @PathVariable("idGroup") Long idGroup,
             @PathVariable("idUser") Long idUser) {
