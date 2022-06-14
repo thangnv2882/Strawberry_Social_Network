@@ -23,7 +23,7 @@ public class UserRegister extends AbstractAuditingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUser;
+    private Long idUserRegister;
 
     @NotBlank
     private String firstName;
