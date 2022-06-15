@@ -5,10 +5,7 @@ import com.example.strawberry.adapter.web.v1.transfer.response.AuthenticationRes
 import com.example.strawberry.application.constants.CommonConstant;
 import com.example.strawberry.application.constants.EmailConstant;
 import com.example.strawberry.application.constants.MessageConstant;
-import com.example.strawberry.application.dai.IPostRepository;
-import com.example.strawberry.application.dai.IReactionRepository;
-import com.example.strawberry.application.dai.IUserRegisterRepository;
-import com.example.strawberry.application.dai.IUserRepository;
+import com.example.strawberry.application.dai.*;
 import com.example.strawberry.application.service.ISendMailService;
 import com.example.strawberry.application.service.IUserService;
 import com.example.strawberry.application.utils.JwtTokenUtil;
@@ -256,7 +253,12 @@ public class UserServiceImpl implements IUserService {
     public Set<Group> getAllGroupByIdUser(Long idUser) {
         Optional<User> user = userRepository.findById(idUser);
         checkUserExists(user);
-        Set<Group> groups = user.get().getGroups();
+
+        Set<UserGroup> userGroups = user.get().getUserGroups();
+        Set<Group> groups = new HashSet<>();
+        userGroups.forEach(i -> {
+            groups.add(i.getGroup());
+        });
         return groups;
     }
 

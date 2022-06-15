@@ -6,10 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,14 +26,15 @@ public class Group extends AbstractAuditingEntity{
 
     private String name;
     private int access;
-    private Long idUserCreated;
 
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER, mappedBy = "groups")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "group")
     @JsonIgnore
-    private Set<User> users = new HashSet<>();
+    private Set<UserGroup> userGroups = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "group")
     @JsonIgnore
     private Set<Post> posts = new HashSet<>();
+
+
 
 }
