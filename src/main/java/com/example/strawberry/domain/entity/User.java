@@ -1,5 +1,6 @@
 package com.example.strawberry.domain.entity;
 
+import com.example.strawberry.adapter.web.base.AuthenticationProvider;
 import com.example.strawberry.domain.entity.base.AbstractAuditingEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -62,6 +63,10 @@ public class User extends AbstractAuditingEntity {
     private String linkAvt;
 
     private String code;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider")
+    private AuthenticationProvider authProvider;
 
 
 //    link to post
