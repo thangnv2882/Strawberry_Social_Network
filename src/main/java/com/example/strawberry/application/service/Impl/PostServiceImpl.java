@@ -133,7 +133,7 @@ public class PostServiceImpl implements IPostService {
         Set<Comment> comments = post.get().getComments();
         List<Comment> commentList = new ArrayList<>(comments);
 
-        commentList.sort((l1, l2) -> (l1.getIdComment()).compareTo(l2.getIdComment()));
+        commentList.sort((l1, l2) -> (l2.getIdComment()).compareTo(l1.getIdComment()));
 
         return commentList;
     }
