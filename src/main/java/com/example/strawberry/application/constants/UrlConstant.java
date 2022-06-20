@@ -105,4 +105,14 @@ public class UrlConstant {
 //        public static final String VALIDATE = PRE_FIX + "/validate";
 //        public static final String LOGOUT = PRE_FIX + "/logout/{id}";
     }
+
+    public static class Notification {
+        public Notification() {
+        }
+
+        private static final String PRE_FIX = "/notifications";
+        public static final String DATA_USER = PRE_FIX;
+        public static final String DATA_NOTIFICATION_ALL = PRE_FIX + "/{idUser}";
+
+    }
 }
