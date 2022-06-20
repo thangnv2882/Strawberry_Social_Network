@@ -1,0 +1,10 @@
+secutity:
+  oauth2:
+    client:
+      registration:
+        google:
+          client-id: 530689031283-3uhtn8dnogfelhjo8pa9k0e7sp12mb09.apps.googleusercontent.com
+          client-secret: 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
+          scope:
+            - email
+            - profile
