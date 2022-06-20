@@ -19,7 +19,7 @@ public interface IPostService {
 //    Set<Video> getAllVideoByIdPost(Long id);
 //    Map<String, Long> getCountReactionOfPost(Long idPost);
 
-//    Set<Comment> getAllCommentByIdPost(Long idPost);
+    List<Comment> getAllCommentByIdPost(Long idPost);
 
     Post createPostInGroup(Long idGroup, Long idUser, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos);
 

@@ -88,6 +88,6 @@ public class PostController {
     public ResponseEntity<?> getAllCommentByIdPost(
             @PathVariable("idPost") Long idPost
     ) {
-        return VsResponseUtil.ok(PostServiceImpl.getAllCommentByIdPost(idPost));
+        return VsResponseUtil.ok(postService.getAllCommentByIdPost(idPost));
     }
 }

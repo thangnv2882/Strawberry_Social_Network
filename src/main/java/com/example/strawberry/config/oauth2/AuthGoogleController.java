@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/login/oauth2/code/google")
+@RequestMapping("api/v1/google")
 public class AuthGoogleController {
 
-  ///oauth2/authorization/google
+  // /oauth2/authorization/google
 
   private final GoogleService googleService;
 
@@ -19,7 +19,7 @@ public class AuthGoogleController {
     this.googleService = googleService;
   }
 
-  @GetMapping()
+  @GetMapping("/save")
   public ResponseEntity<?> save(OAuth2AuthenticationToken token) {
     System.out.println("luu di");
     return VsResponseUtil.ok(googleService.saveUserWithFirstLogin(token));

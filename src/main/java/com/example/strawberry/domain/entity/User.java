@@ -12,7 +12,8 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -35,14 +36,14 @@ public class User extends AbstractAuditingEntity {
     @NotBlank
     private String lastName;
 
-//    @NotBlank
+    //    @NotBlank
     @Nationalized
     private String fullName;
 
-//    @NotBlank
+    //    @NotBlank
     private String email;
 
-//    @NotBlank
+    //    @NotBlank
     private String phoneNumber;
 
     @NotBlank
@@ -69,25 +70,30 @@ public class User extends AbstractAuditingEntity {
     private AuthenticationProvider authProvider;
 
 
-//    link to post
+    //    link to table post
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
 //    @JsonIgnore
     private Set<Post> posts = new HashSet<>();
 
-//    link to comment
+    //    link to table comment
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
     @JsonIgnore
     private Set<Comment> comments = new HashSet<>();
 
-//    link to reaction
+    //    link to table reaction
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
     @JsonIgnore
     private Set<Reaction> reactions = new HashSet<>();
 
-//    link to user_group_detail
+    //    link to table user_group_detail
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
     @JsonIgnore
     private Set<UserGroup> userGroups = new HashSet<>();
+
+    //    link to table notification
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
+    @JsonIgnore
+    private Set<Notification> notifications = new HashSet<>();
 
     /*
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
