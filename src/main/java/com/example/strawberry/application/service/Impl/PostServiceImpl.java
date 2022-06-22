@@ -1,5 +1,6 @@
 package com.example.strawberry.application.service.Impl;
 
+import com.example.strawberry.adapter.web.base.AccessType;
 import com.example.strawberry.application.constants.MessageConstant;
 import com.example.strawberry.application.dai.*;
 import com.example.strawberry.application.service.IPostService;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 
+import static com.example.strawberry.adapter.web.base.AccessType.*;
 import static com.example.strawberry.adapter.web.base.ReactionType.*;
 
 @Service
@@ -49,10 +51,23 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
+    public Post getPostById(Long idPost) {
+        Optional<Post> post = postRepository.findById(idPost);
+        checkPostExists(post);
+        return post.get();
+    }
+
+    @Override
     public Post createPost(Long idUser, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos) {
         Optional<User> user = userRepository.findById(idUser);
         UserServiceImpl.checkUserExists(user);
         Post post = modelMapper.map(postDTO, Post.class);
+        if (PRIVATE.equals(postDTO.getAccess())) {
+            post.setAccess(PRIVATE);
+        }
+        else {
+            post.setAccess(PUBLIC);
+        }
         post.setUser(user.get());
         setMediaToPost(post, fileImages, fileVideos);
         postRepository.save(post);
@@ -91,9 +106,8 @@ public class PostServiceImpl implements IPostService {
         return post.get();
     }
 
-
     @Override
-    public List<?> getAllPostPublic(int access) {
+    public List<?> getAllPostByAccess(AccessType access) {
         Set<Post> posts = postRepository.findAllByAccess(access);
         return getAllPostNotInGroup(posts);
     }
@@ -126,7 +140,7 @@ public class PostServiceImpl implements IPostService {
         return list;
     }
 
-    //    Lấy ra thông tin chi tiết của tất cả bình luận trong 1 bài viết
+//    Lấy ra thông tin chi tiết của tất cả bình luận trong 1 bài viết
     public List<Comment> getAllCommentByIdPost(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
@@ -232,7 +246,7 @@ public class PostServiceImpl implements IPostService {
         UserGroup userGroup = userGroupRepository.findByUserIdUserAndGroupIdGroup(idUser, idGroup);
 
         // Nếu nhóm riêng tư thì chỉ thành viên có thể đăng bài trong nhóm
-        if (group.get().getAccess() == 0 && userGroup == null) {
+        if (group.get().getAccess().equals(AccessType.PRIVATE) && userGroup == null) {
             throw new ExceptionAll(MessageConstant.USER_NOT_IN_GROUP);
         }
 
@@ -242,6 +256,7 @@ public class PostServiceImpl implements IPostService {
         post.setGroup(group.get());
 
         setMediaToPost(post, fileImages, fileVideos);
+        post.setAccess(PUBLIC);
         postRepository.save(post);
         return post;
     }
@@ -265,6 +280,7 @@ public class PostServiceImpl implements IPostService {
                 images.add(image);
             }
             post.setImages(images);
+
         } else {
             post.setImages(new HashSet<>());
         }

@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface INotificationService {
 
-    Set<Notification> getAllNotification(Long idUser);
+    List<Notification> getAllNotification(Long idUser);
     Notification createNotification(Long idUser, NotificationDTO notificationDTO);
     Notification markAsRead(Long idNoti);
     Notification markAsUnRead(Long idNoti);

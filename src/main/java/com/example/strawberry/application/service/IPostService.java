@@ -1,7 +1,7 @@
 package com.example.strawberry.application.service;
 
+import com.example.strawberry.adapter.web.base.AccessType;
 import com.example.strawberry.domain.dto.PostDTO;
-import com.example.strawberry.domain.dto.ReactionDTO;
 import com.example.strawberry.domain.entity.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,7 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 public interface IPostService {
-    List<?> getAllPostPublic(int i);
+    Post getPostById(Long idPost);
+    List<?> getAllPostByAccess(AccessType access);
     Post createPost(Long idUser, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos);
     Post updatePost(Long idUserFix, Long idPost, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos);
     Post deletePostById(Long idUserFix, Long idPost);

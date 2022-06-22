@@ -1,19 +1,16 @@
 package com.example.strawberry.adapter.web.v1.controller;
 
+import com.example.strawberry.adapter.web.base.AccessType;
 import com.example.strawberry.adapter.web.base.RestApiV1;
 import com.example.strawberry.adapter.web.base.VsResponseUtil;
 import com.example.strawberry.application.constants.UrlConstant;
 import com.example.strawberry.application.service.IPostService;
 import com.example.strawberry.application.service.Impl.PostServiceImpl;
-import com.example.strawberry.application.service.Impl.UserServiceImpl;
 import com.example.strawberry.domain.dto.PostDTO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import static com.example.strawberry.application.service.Impl.PostServiceImpl.getAllVideoByIdPost;
-
 
 @RestApiV1
 public class PostController {
@@ -24,10 +21,17 @@ public class PostController {
         this.postService = postService;
     }
 
-    @ApiOperation(value = "Lấy ra tất cả bài post công khai.")
+    @ApiOperation(value = "Lấy ra bài đăng theo id")
+    @GetMapping(UrlConstant.Post.DATA_POST_GET_POST)
+    public ResponseEntity<?> getPostById(
+            @PathVariable("idPost") Long idPost) {
+        return VsResponseUtil.ok(postService.getPostById(idPost));
+    }
+
+    @ApiOperation(value = "Lấy ra tất cả bài đăng công khai.")
     @GetMapping(UrlConstant.Post.DATA_POST)
     public ResponseEntity<?> getAllPost() {
-        return VsResponseUtil.ok(postService.getAllPostPublic(2));
+        return VsResponseUtil.ok(postService.getAllPostByAccess(AccessType.PUBLIC));
     }
 
     @ApiOperation(value = "Đăng bài trên tường")
@@ -70,20 +74,21 @@ public class PostController {
         return VsResponseUtil.ok(postService.deletePostById(idUserFix, idPost));
     }
 
-    @ApiOperation(value = "Lấy ra tất cả ảnh của post theo id.")
+    @ApiOperation(value = "Lấy ra tất cả ảnh của bài đăng theo id.")
     @GetMapping(UrlConstant.Post.DATA_POST_GET_IMAGES)
-    public ResponseEntity<?> getAllImageById(@PathVariable("idPost") Long idPost) {
+    public ResponseEntity<?> getAllImageById(
+            @PathVariable("idPost") Long idPost) {
         return VsResponseUtil.ok(PostServiceImpl.getAllImageByIdPost(idPost));
     }
 
-    @ApiOperation(value = "Lấy ra tất cả video của post theo id.")
+    @ApiOperation(value = "Lấy ra tất cả video của bài đăng theo id.")
     @GetMapping(UrlConstant.Post.DATA_POST_GET_VIDEOS)
     public ResponseEntity<?> getAllVideoById(
             @PathVariable("idPost") Long idPost) {
         return VsResponseUtil.ok(PostServiceImpl.getAllVideoByIdPost(idPost));
     }
 
-    @ApiOperation(value = "Lấy ra tất cả bình luận của bài post.")
+    @ApiOperation(value = "Lấy ra tất cả bình luận của bài đăng.")
     @GetMapping(UrlConstant.Post.DATA_POST_GET_COMMENTS)
     public ResponseEntity<?> getAllCommentByIdPost(
             @PathVariable("idPost") Long idPost

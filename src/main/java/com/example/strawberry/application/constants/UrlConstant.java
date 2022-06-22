@@ -32,6 +32,7 @@ public class UrlConstant {
 
         private static final String PRE_FIX = "/posts";
         public static final String DATA_POST = PRE_FIX;
+        public static final String DATA_POST_GET_POST = PRE_FIX + "/{idPost}";
         public static final String DATA_POST_CREATE_POST = PRE_FIX + "/{idUser}/create-post";
         public static final String DATA_POST_CREATE_IN_GROUP = PRE_FIX + "/{idUser}/{idGroup}/create-post-in-group";
         public static final String DATA_POST_UPDATE_POST = PRE_FIX + "/{idUserFix}/{idPost}/update-post";
@@ -67,6 +68,7 @@ public class UrlConstant {
         public static final String DATA_GROUP_CREATE_GROUP = PRE_FIX + "/{idUser}/create-group";
         public static final String DATA_GROUP_DELETE_GROUP = PRE_FIX + "/{idGroup}/{idUser}/delete-group";
         public static final String DATA_GROUP_ADD_MEMBER = PRE_FIX + "/{idGroup}/{idUser}/add-user-to-group";
+        public static final String DATA_GROUP_DELETE_MEMBER = PRE_FIX + "/{idGroup}/{idUserDelete}/{idUser}/delete-user-from-group";
         public static final String DATA_GROUP_GET_POSTS = PRE_FIX + "/{idGroup}/{idUser}/get-post";
 
     }
@@ -111,8 +113,12 @@ public class UrlConstant {
         }
 
         private static final String PRE_FIX = "/notifications";
-        public static final String DATA_USER = PRE_FIX;
+        public static final String DATA_NOTIFICATION = PRE_FIX;
         public static final String DATA_NOTIFICATION_ALL = PRE_FIX + "/{idUser}";
+        public static final String DATA_NOTIFICATION_CREATE = PRE_FIX + "/{idUser}/create-notification";
+        public static final String DATA_NOTIFICATION_MARK_AS_READ = PRE_FIX + "/{idNoti}/mark-as-read";
+        public static final String DATA_NOTIFICATION_MARK_AS_UNREAD = PRE_FIX + "/{idNoti}/mark-as-unread";
+        public static final String DATA_NOTIFICATION_DELETE = PRE_FIX + "/{idNoti}/delete-notification";
 
     }
 }

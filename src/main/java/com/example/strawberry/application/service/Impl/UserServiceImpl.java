@@ -1,5 +1,6 @@
 package com.example.strawberry.application.service.Impl;
 
+import com.example.strawberry.adapter.web.base.AccessType;
 import com.example.strawberry.adapter.web.v1.transfer.parameter.auth.AuthenticationRequest;
 import com.example.strawberry.adapter.web.v1.transfer.response.AuthenticationResponse;
 import com.example.strawberry.application.constants.CommonConstant;
@@ -243,13 +244,13 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<?> getAllPostByIdUserAndAccess(Long idUser, int access) {
+    public List<?> getAllPostByIdUserAndAccess(Long idUser, AccessType access) {
         Optional<User> user = userRepository.findById(idUser);
         checkUserExists(user);
         Set<Post> posts = user.get().getPosts();
         Set<Post> postsEnd = new HashSet<>();
         posts.forEach(post -> {
-            if (post.getAccess() == access) {
+            if (post.getAccess().equals(access)) {
                 postsEnd.add(post);
             }
         });

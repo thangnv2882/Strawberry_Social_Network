@@ -11,8 +11,8 @@ import com.example.strawberry.domain.entity.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class NotificationServiceImpl implements INotificationService {
@@ -28,10 +28,14 @@ public class NotificationServiceImpl implements INotificationService {
     }
 
     @Override
-    public Set<Notification> getAllNotification(Long idUser) {
+    public List<Notification> getAllNotification(Long idUser) {
         Optional<User> user = userRepository.findById(idUser);
         UserServiceImpl.checkUserExists(user);
-        return notificationRepository.findByUserIdUser(idUser);
+        List<Notification> notifications = notificationRepository.findByUserIdUser(idUser);
+
+//        Sắp xếp thông báo mới nhất ở trên
+        notifications.sort((l1, l2) -> (l2.getIdNoti()).compareTo(l1.getIdNoti()));
+        return notifications;
     }
 
     @Override
@@ -40,6 +44,7 @@ public class NotificationServiceImpl implements INotificationService {
         UserServiceImpl.checkUserExists(user);
         Notification notification = modelMapper.map(notificationDTO, Notification.class);
         notification.setUser(user.get());
+        notificationRepository.save(notification);
         return notification;
     }
 
