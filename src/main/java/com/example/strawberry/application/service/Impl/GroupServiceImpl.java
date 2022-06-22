@@ -1,5 +1,6 @@
 package com.example.strawberry.application.service.Impl;
 
+import com.example.strawberry.adapter.web.base.AccessType;
 import com.example.strawberry.application.constants.MessageConstant;
 import com.example.strawberry.application.dai.IGroupRepository;
 import com.example.strawberry.application.dai.IUserGroupRepository;
@@ -39,8 +40,8 @@ public class GroupServiceImpl implements IGroupService {
     }
 
     @Override
-    public Set<Group> getGroupByAccess(int access) {
-        Set<Group> groups = groupRepository.findGroupByAccessIs(access);
+    public Set<Group> getGroupByAccess(AccessType access) {
+        Set<Group> groups = groupRepository.findByAccess(access);
         return groups;
     }
 
@@ -56,7 +57,7 @@ public class GroupServiceImpl implements IGroupService {
         Set<Post> posts = group.get().getPosts();
 
         // Nếu nhóm riêng tư thì chỉ thành viên có thể xem các bài viết trong nhóm
-        if (group.get().getAccess() == 0) {
+        if (group.get().getAccess().equals(AccessType.PRIVATE)) {
             if (userGroup != null) {
                 return posts;
             }
