@@ -29,7 +29,7 @@ public class UserController {
     @ApiOperation(value = "Xem danh sách tất cả tài khoản.")
     @GetMapping(UrlConstant.User.DATA_USER)
     public ResponseEntity<?> getAllUsers() {
-        return ResponseEntity.ok().body(userService.findAllUsers());
+        return VsResponseUtil.ok(userService.findAllUsers());
     }
 
     @ApiOperation(value = "Xem tài khoản theo id.")

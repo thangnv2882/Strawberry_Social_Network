@@ -6,6 +6,7 @@ import com.example.strawberry.domain.entity.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface IPostService {
@@ -19,14 +20,14 @@ public interface IPostService {
 
     Post deletePostById(Long idUserFix, Long idPost);
 
-//    Set<Image> getAllImageByIdPost(Long id);
-//    Set<Video> getAllVideoByIdPost(Long id);
-//    Map<String, Long> getCountReactionOfPost(Long idPost);
+    Set<Image> getAllImageByIdPost(Long idPost);
+
+    Set<Video> getAllVideoByIdPost(Long idPost);
 
     List<Comment> getAllCommentByIdPost(Long idPost);
 
     Post createPostInGroup(Long idGroup, Long idUser, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos);
 
-    Set<Post> findByContentPost(String contentPost);
+//    Set<Post> findByContentPost(String contentPost);
 
 }

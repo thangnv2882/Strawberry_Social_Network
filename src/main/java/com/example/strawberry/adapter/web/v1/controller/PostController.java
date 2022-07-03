@@ -5,7 +5,6 @@ import com.example.strawberry.adapter.web.base.RestApiV1;
 import com.example.strawberry.adapter.web.base.VsResponseUtil;
 import com.example.strawberry.application.constants.UrlConstant;
 import com.example.strawberry.application.service.IPostService;
-import com.example.strawberry.application.service.Impl.PostServiceImpl;
 import com.example.strawberry.domain.dto.PostDTO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
@@ -78,14 +77,14 @@ public class PostController {
     @GetMapping(UrlConstant.Post.DATA_POST_GET_IMAGES)
     public ResponseEntity<?> getAllImageById(
             @PathVariable("idPost") Long idPost) {
-        return VsResponseUtil.ok(PostServiceImpl.getAllImageByIdPost(idPost));
+        return VsResponseUtil.ok(postService.getAllImageByIdPost(idPost));
     }
 
     @ApiOperation(value = "Lấy ra tất cả video của bài đăng theo id.")
     @GetMapping(UrlConstant.Post.DATA_POST_GET_VIDEOS)
     public ResponseEntity<?> getAllVideoById(
             @PathVariable("idPost") Long idPost) {
-        return VsResponseUtil.ok(PostServiceImpl.getAllVideoByIdPost(idPost));
+        return VsResponseUtil.ok(postService.getAllVideoByIdPost(idPost));
     }
 
     @ApiOperation(value = "Lấy ra tất cả bình luận của bài đăng.")
@@ -96,11 +95,11 @@ public class PostController {
         return VsResponseUtil.ok(postService.getAllCommentByIdPost(idPost));
     }
 
-    @ApiOperation(value = "Tìm kiếm bài viết.")
-    @GetMapping(UrlConstant.Post.DATA_POST_FIND_BY_CONTENT)
-    public ResponseEntity<?> findByContentPost(
-            @RequestParam("contentFind") String contentFind
-    ) {
-        return VsResponseUtil.ok(postService.findByContentPost(contentFind));
-    }
+//    @ApiOperation(value = "Tìm kiếm bài viết.")
+//    @GetMapping(UrlConstant.Post.DATA_POST_FIND_BY_CONTENT)
+//    public ResponseEntity<?> findByContentPost(
+//            @RequestParam("contentFind") String contentFind
+//    ) {
+//        return VsResponseUtil.ok(postService.findByContentPost(contentFind));
+//    }
 }

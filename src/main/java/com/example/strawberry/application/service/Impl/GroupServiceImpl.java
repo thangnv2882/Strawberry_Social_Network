@@ -25,13 +25,11 @@ public class GroupServiceImpl implements IGroupService {
     private final IGroupRepository groupRepository;
     private final IUserRepository userRepository;
     private final IUserGroupRepository userGroupRepository;
-    private final UserServiceImpl userService;
 
-    public GroupServiceImpl(IGroupRepository groupRepository, IUserRepository userRepository, IUserGroupRepository userGroupRepository, UserServiceImpl userService) {
+    public GroupServiceImpl(IGroupRepository groupRepository, IUserRepository userRepository, IUserGroupRepository userGroupRepository) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.userGroupRepository = userGroupRepository;
-        this.userService = userService;
     }
 
     @Override
@@ -48,7 +46,7 @@ public class GroupServiceImpl implements IGroupService {
     @Override
     public Set<Post> getAllPostInGroup(Long idGroup, Long idUser) {
         Optional<User> user = userRepository.findById(idUser);
-        userService.checkUserExists(user);
+        UserServiceImpl.checkUserExists(user);
 
         Optional<Group> group = groupRepository.findById(idGroup);
         checkGroupExists(group);
