@@ -40,6 +40,7 @@ public class UrlConstant {
         public static final String DATA_POST_GET_IMAGES = PRE_FIX + "/{idPost}/images";
         public static final String DATA_POST_GET_VIDEOS = PRE_FIX + "/{idPost}/videos";
         public static final String DATA_POST_GET_COMMENTS = PRE_FIX + "/{idPost}/comments";
+        public static final String DATA_POST_FIND_BY_CONTENT = PRE_FIX + "/find-by-content";
 
     }
 

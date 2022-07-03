@@ -95,4 +95,12 @@ public class PostController {
     ) {
         return VsResponseUtil.ok(postService.getAllCommentByIdPost(idPost));
     }
+
+    @ApiOperation(value = "Tìm kiếm bài viết.")
+    @GetMapping(UrlConstant.Post.DATA_POST_FIND_BY_CONTENT)
+    public ResponseEntity<?> findByContentPost(
+            @RequestParam("contentFind") String contentFind
+    ) {
+        return VsResponseUtil.ok(postService.findByContentPost(contentFind));
+    }
 }
