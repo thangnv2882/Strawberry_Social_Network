@@ -23,26 +23,25 @@ import static com.example.strawberry.adapter.web.base.ReactionType.*;
 @Service
 public class PostServiceImpl implements IPostService {
 
-    private static IPostRepository postRepository;
-//    private final IPostElasticsearchRepository postElasticsearchRepository;
+    private final IPostRepository postRepository;
     private final IUserRepository userRepository;
     private final IGroupRepository groupRepository;
     private final IImageRepository imageRepository;
     private final IVideoRepository videoRepository;
-    private static IReactionRepository reactionRepository;
-    private final UserServiceImpl userService;
+    private final IReactionRepository reactionRepository;
     private final GroupServiceImpl groupService;
     private final ModelMapper modelMapper;
     private final UploadFile uploadFile;
     private final IUserGroupRepository userGroupRepository;
     private Slugify slg = new Slugify();
 
-    public PostServiceImpl(IUserRepository userRepository, IGroupRepository groupRepository, IImageRepository imageRepository, IVideoRepository videoRepository, UserServiceImpl userService, GroupServiceImpl groupService, ModelMapper modelMapper, UploadFile uploadFile, IUserGroupRepository userGroupRepository) {
+    public PostServiceImpl(IPostRepository postRepository, IUserRepository userRepository, IGroupRepository groupRepository, IImageRepository imageRepository, IVideoRepository videoRepository, IReactionRepository reactionRepository, GroupServiceImpl groupService, ModelMapper modelMapper, UploadFile uploadFile, IUserGroupRepository userGroupRepository) {
+        this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.imageRepository = imageRepository;
         this.videoRepository = videoRepository;
-        this.userService = userService;
+        this.reactionRepository = reactionRepository;
         this.groupService = groupService;
         this.modelMapper = modelMapper;
         this.uploadFile = uploadFile;
@@ -107,11 +106,15 @@ public class PostServiceImpl implements IPostService {
 
     @Override
     public List<?> getAllPostByAccess(AccessType access) {
+        System.out.println(access);
         Set<Post> posts = postRepository.findAllByAccess(access);
+        System.out.println("1");
+        System.out.println(posts);
+        System.out.println("1");
         return getAllPostNotInGroup(posts);
     }
 
-    public static List<?> getAllPostNotInGroup(Set<Post> posts) {
+    public List<?> getAllPostNotInGroup(Set<Post> posts) {
         Set<Post> postEnd = new HashSet<>();
         posts.forEach(i -> {
             if (i.getGroup() == null) {
@@ -152,7 +155,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     //    Hiện thị các lượt bày tỏ cảm xúc của bài post này
-    public static Map<String, Long> getCountReactionOfPost(Long idPost) {
+    public Map<String, Long> getCountReactionOfPost(Long idPost) {
         Map<String, Long> countReaction = new HashMap<>();
         countReaction.put("LIKE", reactionRepository.countByPostIdPostAndAndReactionType(idPost, LIKE));
         countReaction.put("LOVE", reactionRepository.countByPostIdPostAndAndReactionType(idPost, LIKE));
@@ -167,7 +170,7 @@ public class PostServiceImpl implements IPostService {
 
 
     //    Lấy ra thông tin cơ bản của Video trong Post (idImage, linkImage)
-    public static List<Map<String, Object>> getAllImageByIdPostSimple(Long idPost) {
+    public List<Map<String, Object>> getAllImageByIdPostSimple(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Image> images = postRepository.findById(idPost).get().getImages();
@@ -186,7 +189,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     //    Lấy ra thông tin cơ bản của Video trong Post (idVideo, linkVideo)
-    public static List<Map<String, Object>> getAllVideoByIdPostSimple(Long idPost) {
+    public List<Map<String, Object>> getAllVideoByIdPostSimple(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Video> videos = postRepository.findById(idPost).get().getVideos();
@@ -204,7 +207,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     //    Lấy ra thông tin chi tiết của tất cả ảnh trong 1 bài viết
-    public static Set<Image> getAllImageByIdPost(Long idPost) {
+    public Set<Image> getAllImageByIdPost(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Image> images = postRepository.findById(idPost).get().getImages();
@@ -213,14 +216,14 @@ public class PostServiceImpl implements IPostService {
 
 
     //    Lấy ra thông tin chi tiết của tất cả video trong 1 bài viết
-    public static Set<Video> getAllVideoByIdPost(Long idPost) {
+    public Set<Video> getAllVideoByIdPost(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Video> videos = postRepository.findById(idPost).get().getVideos();
         return videos;
     }
 
-    public static Long countCommentByIdPost(Long idPost) {
+    public Long countCommentByIdPost(Long idPost) {
         Optional<Post> post = postRepository.findById(idPost);
         checkPostExists(post);
         Set<Comment> comments = post.get().getComments();
@@ -261,10 +264,10 @@ public class PostServiceImpl implements IPostService {
     }
 
 
-    @Override
-    public Set<Post> findByContentPost(String contentPost) {
-        return postRepository.findByContentPost(contentPost);
-    }
+//    @Override
+//    public Set<Post> findByContentPost(String contentPost) {
+//        return postRepository.findByContentPost(contentPost);
+//    }
 
 
     public static void checkPostExists(Optional<Post> post) {
