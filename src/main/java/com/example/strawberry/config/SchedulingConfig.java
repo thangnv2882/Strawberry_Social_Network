@@ -28,12 +28,10 @@ public class SchedulingConfig {
     // 0h hằng ngày check nếu đăng ký quá 24h chưa kích hoạt tài khoản thì xoá tài khoản
     @Async
     @Scheduled(cron = "0 0 0 * * *")
-//    @Scheduled(fixedRate = 5000)
     void deleteUserDontActive() {
         List<UserRegister> userRegisters = userRegisterRepository.findAllByStatus(Boolean.FALSE);
         Date date = new Date();
         userRegisters.forEach(i -> {
-            System.out.println(date.getTime() - i.getCreatedAt().getTime());
             if((date.getTime() - i.getCreatedAt().getTime()) > 86400000) {
                 userRegisterRepository.delete(i);
             }

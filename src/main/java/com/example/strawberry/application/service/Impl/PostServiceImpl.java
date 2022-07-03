@@ -24,6 +24,7 @@ import static com.example.strawberry.adapter.web.base.ReactionType.*;
 public class PostServiceImpl implements IPostService {
 
     private static IPostRepository postRepository;
+//    private final IPostElasticsearchRepository postElasticsearchRepository;
     private final IUserRepository userRepository;
     private final IGroupRepository groupRepository;
     private final IImageRepository imageRepository;
@@ -36,13 +37,11 @@ public class PostServiceImpl implements IPostService {
     private final IUserGroupRepository userGroupRepository;
     private Slugify slg = new Slugify();
 
-    public PostServiceImpl(IPostRepository postRepository, IUserRepository userRepository, IGroupRepository groupRepository, IImageRepository imageRepository, IVideoRepository videoRepository, IReactionRepository reactionRepository, UserServiceImpl userService, GroupServiceImpl groupService, ModelMapper modelMapper, UploadFile uploadFile, IUserGroupRepository userGroupRepository) {
-        this.postRepository = postRepository;
+    public PostServiceImpl(IUserRepository userRepository, IGroupRepository groupRepository, IImageRepository imageRepository, IVideoRepository videoRepository, UserServiceImpl userService, GroupServiceImpl groupService, ModelMapper modelMapper, UploadFile uploadFile, IUserGroupRepository userGroupRepository) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.imageRepository = imageRepository;
         this.videoRepository = videoRepository;
-        this.reactionRepository = reactionRepository;
         this.userService = userService;
         this.groupService = groupService;
         this.modelMapper = modelMapper;
@@ -259,6 +258,12 @@ public class PostServiceImpl implements IPostService {
         post.setAccess(PUBLIC);
         postRepository.save(post);
         return post;
+    }
+
+
+    @Override
+    public Set<Post> findByContentPost(String contentPost) {
+        return postRepository.findByContentPost(contentPost);
     }
 
 
