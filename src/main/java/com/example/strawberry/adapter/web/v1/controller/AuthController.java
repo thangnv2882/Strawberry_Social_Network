@@ -19,7 +19,7 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @ApiOperation(value = "Đăng nhập.")
+    @ApiOperation(value = "Đăng nhập")
     @PostMapping(UrlConstant.Auth.LOGIN)
     public ResponseEntity<?> login(
             @RequestBody AuthenticationRequest authenticationRequest) throws Exception {
