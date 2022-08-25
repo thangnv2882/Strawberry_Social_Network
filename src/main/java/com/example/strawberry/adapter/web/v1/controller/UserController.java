@@ -98,14 +98,14 @@ public class UserController {
     public ResponseEntity<?> updateAvatarById(
             @PathVariable("id") Long id,
             @RequestParam(name = "avatar", required = false) MultipartFile avatar) throws IOException {
-        return VsResponseUtil.ok(userService.updateAvatarById(id, uploadFile.getUrlFromFile(avatar)));
+        return VsResponseUtil.ok(userService.updateAvatarById(id, uploadFile.getUrlFromLargeFile(avatar)));
     }
     @ApiOperation(value = "Cập nhật ảnh bìa.")
     @PostMapping(UrlConstant.User.DATA_USER_UPDATE_COVER)
     public ResponseEntity<?> updateCoverById(
             @PathVariable("id") Long id,
             @RequestParam(name = "cover", required = false) MultipartFile cover) throws IOException {
-        return VsResponseUtil.ok(userService.updateCoverById(id, uploadFile.getUrlFromFile(cover)));
+        return VsResponseUtil.ok(userService.updateCoverById(id, uploadFile.getUrlFromLargeFile(cover)));
     }
 
     @ApiOperation(value = "Lấy ra tất cả bài viết của user.")
