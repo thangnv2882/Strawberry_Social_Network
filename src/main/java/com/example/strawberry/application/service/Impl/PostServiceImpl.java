@@ -106,11 +106,7 @@ public class PostServiceImpl implements IPostService {
 
     @Override
     public List<?> getAllPostByAccess(AccessType access) {
-        System.out.println(access);
         Set<Post> posts = postRepository.findAllByAccess(access);
-        System.out.println("1");
-        System.out.println(posts);
-        System.out.println("1");
         return getAllPostNotInGroup(posts);
     }
 
@@ -123,23 +119,28 @@ public class PostServiceImpl implements IPostService {
         });
         List<Map<String, Object>> list = new ArrayList<>();
         for (Post post : postEnd) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("idPost", post.getIdPost());
-            map.put("createdAt", post.getCreatedAt());
-            map.put("updatedAt", post.getUpdatedAt());
-            map.put("contentPost", post.getContentPost());
-            map.put("access", post.getAccess());
-            map.put("user", post.getUser());
-            map.put("reactions", getCountReactionOfPost(post.getIdPost()));
-            map.put("images", getAllImageByIdPostSimple(post.getIdPost()));
-            map.put("videos", getAllVideoByIdPostSimple(post.getIdPost()));
-            map.put("countComments", countCommentByIdPost(post.getIdPost()));
+            Map<String, Object> map = getDetailPost(post);
             list.add(map);
         }
 
         list.sort((l1, l2) -> ((Long) l2.get("idPost")).compareTo((Long) l1.get("idPost")));
 
         return list;
+    }
+
+    public Map<String, Object> getDetailPost(Post post) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("idPost", post.getIdPost());
+        map.put("createdAt", post.getCreatedAt());
+        map.put("updatedAt", post.getUpdatedAt());
+        map.put("contentPost", post.getContentPost());
+        map.put("access", post.getAccess());
+        map.put("user", post.getUser());
+        map.put("reactions", getCountReactionOfPost(post.getIdPost()));
+        map.put("images", getAllImageByIdPostSimple(post.getIdPost()));
+        map.put("videos", getAllVideoByIdPostSimple(post.getIdPost()));
+        map.put("countComments", countCommentByIdPost(post.getIdPost()));
+        return map;
     }
 
 //    Lấy ra thông tin chi tiết của tất cả bình luận trong 1 bài viết
@@ -262,13 +263,6 @@ public class PostServiceImpl implements IPostService {
         postRepository.save(post);
         return post;
     }
-
-
-//    @Override
-//    public Set<Post> findByContentPost(String contentPost) {
-//        return postRepository.findByContentPost(contentPost);
-//    }
-
 
     public static void checkPostExists(Optional<Post> post) {
         if (post.isEmpty()) {

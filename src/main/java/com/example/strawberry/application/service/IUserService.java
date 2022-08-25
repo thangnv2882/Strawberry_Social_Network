@@ -30,7 +30,8 @@ public interface IUserService {
     User changePassword(Long id, ResetPasswordDTO resetPasswordDTO);
     User updateUserById(Long id, UserDTO userDTO);
     User deleteUserById(Long id);
-    User updateAvatarById(Long id, MultipartFile avatar) throws IOException;
+    User updateAvatarById(Long id, String avatar) throws IOException;
+    User updateCoverById(Long id, String linkCover);
 
     List<?> getAllPostByIdUser(Long idUser);
     List<?> getAllPostByIdUserAndAccess(Long idUser, AccessType access);
@@ -41,10 +42,4 @@ public interface IUserService {
 
     List<UserRegister> findAllUserRegister();
 
-//    Map<String, Long> getCountReactionOfPost(Long idPost);
-//
-//    Set<Image> getAllImageByIdPost(Long idPost);
-//    Set<Video> getAllVideoByIdPost(Long idPost);
-//
-//    Set<Comment> getAllCommentByIdPost(Long idPost);
 }

@@ -27,7 +27,4 @@ public interface IPostService {
     List<Comment> getAllCommentByIdPost(Long idPost);
 
     Post createPostInGroup(Long idGroup, Long idUser, PostDTO postDTO, MultipartFile[] fileImages, MultipartFile[] fileVideos);
-
-//    Set<Post> findByContentPost(String contentPost);
-
 }

@@ -2,7 +2,6 @@ package com.example.strawberry.config;
 
 import com.example.strawberry.application.filter.JwtRequestFilter;
 import com.example.strawberry.application.service.Impl.MyUserDetailsService;
-import com.example.strawberry.config.oauth2.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,24 +23,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final MyUserDetailsService myUserDetailsService;
     private final JwtRequestFilter jwtRequestFilter;
-    private final CustomOAuth2UserService oAuth2UserService;
 
 
     @Autowired
-    public WebSecurityConfig(MyUserDetailsService myUserDetailsService, JwtRequestFilter jwtRequestFilter, CustomOAuth2UserService oAuth2UserService) {
+    public WebSecurityConfig(MyUserDetailsService myUserDetailsService, JwtRequestFilter jwtRequestFilter) {
         this.myUserDetailsService = myUserDetailsService;
         this.jwtRequestFilter = jwtRequestFilter;
-        this.oAuth2UserService = oAuth2UserService;
     }
 
-//    private static final String[] WHILE_LIST_URLS = {
-////            "/auth/login",
-////            "/api/v1/users/register",
-////            "/api/v1/users/"
-//    };
-//    private static final String[] AUTHENTICATION_LIST_URLS = {
-//        "/api/v1/users/**"
-//    };
+    private static final String[] WHILE_LIST_URLS = {
+            "/auth/login",
+            "/api/v1/users/register",
+            "/api/v1/users/"
+    };
+    private static final String[] AUTHENTICATION_LIST_URLS = {
+        "/api/v1/users/**",
+        "/api/v1/comments/**",
+        "/api/v1/friendships/**",
+        "/api/v1/groups/**",
+        "/api/v1/notifications/**",
+        "/api/v1/posts/**",
+        "/api/v1/reactions/**",
+    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -58,16 +61,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().configurationSource(request -> corsConfiguration())
                 .and().csrf().disable()
                 .authorizeRequests()
-//                .antMatchers("oauth2/**").permitAll()
-//                .antMatchers(AUTHENTICATION_LIST_URLS).authenticated()
-                .antMatchers("/auth/login").permitAll()
+                .antMatchers(WHILE_LIST_URLS).permitAll()
+                .antMatchers(AUTHENTICATION_LIST_URLS).authenticated()
                 .and()
 
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.oauth2Login()
-                .userInfoEndpoint()
-                .userService(oAuth2UserService);
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 

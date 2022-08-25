@@ -17,6 +17,4 @@ public interface IUserRegisterRepository extends JpaRepository<UserRegister, Lon
     @Query("select u from UserRegister u where u.email = ?1")
     UserRegister findByEmail(String Email);
 
-    @Query("select u from UserRegister u where u.email = ?1 or u.phoneNumber = ?2")
-    UserRegister findByEmailOrPhoneNumber(String email, String phoneNumber);
 }

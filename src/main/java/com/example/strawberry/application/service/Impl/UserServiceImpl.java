@@ -114,21 +114,15 @@ public class UserServiceImpl implements IUserService {
                 + ".\n\tPassword: " + userDTO.getPassword()
                 + ".\n\nYOUR ACTIVATION CODE: " + code
                 + ".\nThank you for using our service.";
-        if (!isEmailOrPhoneNumberExists(userRegister)) {
-            userRegister.setCode(code);
-            userRegister.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
-            userRegister.setLinkAvt(CommonConstant.AVATAR_DEFAULT);
-            userRegisterRepository.save(userRegister);
-            sendMailService.sendMailWithText(EmailConstant.SUBJECT_ACTIVE, content, userDTO.getEmail());
-            return userRegister;
+        if (isEmailExists(userRegister)) {
+            userRegister = userRegisterRepository.findByEmail(userDTO.getEmail());
         }
-        UserRegister userRegister1 = userRegisterRepository.findByEmailOrPhoneNumber(userDTO.getEmail(), userDTO.getPhoneNumber());
-        userRegister1.setCode(code);
-        userRegister1.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
-        userRegister1.setLinkAvt(CommonConstant.AVATAR_DEFAULT);
-        userRegisterRepository.save(userRegister1);
+        modelMapper.map(userDTO, userRegister);
+        userRegister.setCode(code);
+        userRegister.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
+        userRegisterRepository.save(userRegister);
         sendMailService.sendMailWithText(EmailConstant.SUBJECT_ACTIVE, content, userDTO.getEmail());
-        return userRegister1;
+        return userRegister;
     }
 
     @Override
@@ -141,8 +135,9 @@ public class UserServiceImpl implements IUserService {
             User user = modelMapper.map(userRegister.get(), User.class);
             user.setIdUser(null);
             String password = passwordEncoder.encode(userRegister.get().getPassword());
-            System.out.println(password);
             user.setPassword(password);
+            user.setLinkAvt(CommonConstant.AVATAR_DEFAULT);
+            user.setLinkCover(CommonConstant.COVER_DEFAULT);
             userRepository.save(user);
             return user;
         }
@@ -176,7 +171,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public User changePassword(Long id, ResetPasswordDTO resetPasswordDTO) {
         Optional<User> user = userRepository.findById(id);
-        UserRegister userRegister = userRegisterRepository.findByEmailOrPhoneNumber(user.get().getEmail(), user.get().getPhoneNumber());
+        UserRegister userRegister = userRegisterRepository.findByEmail(user.get().getEmail());
         checkUserExists(user);
         checkUserRegisterExists(Optional.ofNullable(userRegister));
         if (passwordEncoder.matches(resetPasswordDTO.getOldPassword(), user.get().getPassword()) == false) {
@@ -194,9 +189,9 @@ public class UserServiceImpl implements IUserService {
     public User updateUserById(Long id, UserDTO userDTO) {
         Optional<User> user = userRepository.findById(id);
         checkUserExists(user);
-        UserRegister userRegisterOriginal = userRegisterRepository.findByEmailOrPhoneNumber(user.get().getEmail(), user.get().getPhoneNumber());
+        UserRegister userRegisterOriginal = userRegisterRepository.findByEmail(user.get().getEmail());
         UserRegister userRegisterNew = modelMapper.map(userDTO, UserRegister.class);
-        if (isEmailOrPhoneNumberExists(userRegisterNew)) {
+        if (isEmailExists(userRegisterNew)) {
             throw new DuplicateException("Thông tin đã tồn tại.");
         }
         modelMapper.map(userDTO, user.get());
@@ -215,7 +210,7 @@ public class UserServiceImpl implements IUserService {
     public User deleteUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         checkUserExists(user);
-        UserRegister userRegister = userRegisterRepository.findByEmailOrPhoneNumber(user.get().getEmail(), user.get().getPhoneNumber());
+        UserRegister userRegister = userRegisterRepository.findByEmail(user.get().getEmail());
         checkUserRegisterExists(Optional.ofNullable(userRegister));
         userRepository.delete(user.get());
         userRegisterRepository.delete(userRegister);
@@ -223,15 +218,20 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public User updateAvatarById(Long id, MultipartFile avatar) throws IOException {
+    public User updateAvatarById(Long id, String linkAvt) {
         Optional<User> user = userRepository.findById(id);
         checkUserExists(user);
-        if (user.get().getLinkAvt() != null) {
-            uploadFile.removeImageFromUrl(user.get().getLinkAvt());
-        }
-        user.get().setLinkAvt(uploadFile.getUrlFromFile(avatar));
+        user.get().setLinkAvt(linkAvt);
         userRepository.save(user.get());
+        return user.get();
+    }
 
+    @Override
+    public User updateCoverById(Long id, String linkCover) {
+        Optional<User> user = userRepository.findById(id);
+        checkUserExists(user);
+        user.get().setLinkCover(linkCover);
+        userRepository.save(user.get());
         return user.get();
     }
 
@@ -311,24 +311,14 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
-    public Boolean isEmailOrPhoneNumberExists(UserRegister userRegister) {
+    public Boolean isEmailExists(UserRegister userRegister) {
         List<UserRegister> userRegisters = userRegisterRepository.findAll();
-        userRegisters.forEach(user -> {
-            if (user.getStatus() == Boolean.TRUE) {
-                if (user.getEmail().compareTo(userRegister.getEmail()) == 0) {
+        for (UserRegister user : userRegisters) {
+            if (user.getEmail().compareTo(userRegister.getEmail()) == 0) {
+                if (user.getStatus() == Boolean.TRUE) {
                     throw new DuplicateException("Email: " + userRegister.getEmail() + " is already registered.");
                 }
-                if (user.getPhoneNumber().compareTo(userRegister.getPhoneNumber()) == 0) {
-                    throw new DuplicateException("Phone number: " + userRegister.getPhoneNumber() + " is already registered.");
-                }
-            }
-        });
-        for(UserRegister user : userRegisters) {
-            if (user.getStatus() == Boolean.FALSE) {
-                if (user.getEmail().compareTo(userRegister.getEmail()) == 0
-                        || user.getPhoneNumber().compareTo(userRegister.getPhoneNumber()) == 0) {
-                    return true;
-                }
+                return true;
             }
         }
         return false;

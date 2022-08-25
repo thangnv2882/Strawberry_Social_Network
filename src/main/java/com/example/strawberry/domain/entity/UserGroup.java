@@ -13,8 +13,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserGroup {
-//    @EmbeddedId
-//    private UserGroupKey id;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUserGroup;

@@ -16,6 +16,7 @@ public class UrlConstant {
         public static final String DATA_USER_UPDATE_USER = PRE_FIX + "/{id}/update-user";
         public static final String DATA_USER_DELETE_USER = PRE_FIX + "/{id}/delete-user";
         public static final String DATA_USER_UPDATE_AVATAR = PRE_FIX + "/{id}/update-avatar";
+        public static final String DATA_USER_UPDATE_COVER = PRE_FIX + "/{id}/update-cover";
         public static final String DATA_USER_GET_POSTS = PRE_FIX + "/{id}/posts";
         public static final String DATA_USER_GET_POST_ACCESS = PRE_FIX + "/{idUser}/posts/{access}";
         public static final String DATA_USER_GET_GROUPS = PRE_FIX + "/{id}/groups";

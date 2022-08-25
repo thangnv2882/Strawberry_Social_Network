@@ -1,6 +1,5 @@
 package com.example.strawberry.domain.entity;
 
-import com.example.strawberry.domain.entity.base.AbstractAuditingEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

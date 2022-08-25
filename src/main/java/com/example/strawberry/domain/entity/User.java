@@ -1,6 +1,5 @@
 package com.example.strawberry.domain.entity;
 
-import com.example.strawberry.adapter.web.base.AuthenticationProvider;
 import com.example.strawberry.domain.entity.base.AbstractAuditingEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -8,10 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
-import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,24 +26,16 @@ public class User extends AbstractAuditingEntity {
     private Long idUser;
 
     @Nationalized
-    @NotBlank
     private String firstName;
 
     @Nationalized
-    @NotBlank
     private String lastName;
 
-    //    @NotBlank
     @Nationalized
     private String fullName;
 
-    //    @NotBlank
     private String email;
 
-    //    @NotBlank
-    private String phoneNumber;
-
-    @NotBlank
     private String password;
 
     @Nationalized
@@ -58,17 +47,13 @@ public class User extends AbstractAuditingEntity {
     private String birthday;
 
     @Nationalized
-    @Length(max = 10000)
     private String biography;
 
     private String linkAvt;
 
+    private String linkCover;
+
     private String code;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "auth_provider")
-    private AuthenticationProvider authProvider;
-
 
     //    link to table post
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
@@ -94,14 +79,5 @@ public class User extends AbstractAuditingEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
     @JsonIgnore
     private Set<Notification> notifications = new HashSet<>();
-
-    /*
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "user_room",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "room_id"))
-    @JsonIgnore
-    private Set<RoomChat> roomChats = new HashSet<>();
-     */
 
 }

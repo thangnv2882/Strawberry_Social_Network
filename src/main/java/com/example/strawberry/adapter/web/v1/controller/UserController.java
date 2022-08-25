@@ -6,6 +6,7 @@ import com.example.strawberry.adapter.web.base.VsResponseUtil;
 import com.example.strawberry.application.constants.UrlConstant;
 import com.example.strawberry.application.service.IFriendShipService;
 import com.example.strawberry.application.service.IUserService;
+import com.example.strawberry.application.utils.UploadFile;
 import com.example.strawberry.domain.dto.ResetPasswordDTO;
 import com.example.strawberry.domain.dto.UserDTO;
 import io.swagger.annotations.ApiOperation;
@@ -19,11 +20,13 @@ import java.io.IOException;
 public class UserController {
     private final IUserService userService;
     private final IFriendShipService friendShipService;
+    private final UploadFile uploadFile;
 
 
-    public UserController(IUserService userService, IFriendShipService friendShipService) {
+    public UserController(IUserService userService, IFriendShipService friendShipService, UploadFile uploadFile) {
         this.userService = userService;
         this.friendShipService = friendShipService;
+        this.uploadFile = uploadFile;
     }
 
     @ApiOperation(value = "Xem danh sách tất cả tài khoản.")
@@ -95,7 +98,14 @@ public class UserController {
     public ResponseEntity<?> updateAvatarById(
             @PathVariable("id") Long id,
             @RequestParam(name = "avatar", required = false) MultipartFile avatar) throws IOException {
-        return VsResponseUtil.ok(userService.updateAvatarById(id, avatar));
+        return VsResponseUtil.ok(userService.updateAvatarById(id, uploadFile.getUrlFromFile(avatar)));
+    }
+    @ApiOperation(value = "Cập nhật ảnh bìa.")
+    @PostMapping(UrlConstant.User.DATA_USER_UPDATE_COVER)
+    public ResponseEntity<?> updateCoverById(
+            @PathVariable("id") Long id,
+            @RequestParam(name = "cover", required = false) MultipartFile cover) throws IOException {
+        return VsResponseUtil.ok(userService.updateCoverById(id, uploadFile.getUrlFromFile(cover)));
     }
 
     @ApiOperation(value = "Lấy ra tất cả bài viết của user.")
